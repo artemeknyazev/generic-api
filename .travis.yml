@@ -2,4 +2,11 @@ dist: xenial
 language: node_js
 node_js: 11.0.0
 cache: npm
+deploy:
+  provider: heroku
+  api_key:
+    secure: TvnBy5iknTOnJqlgE/MY0Jci2NF79yDqdwdHmFNr9kYF376bs1bYAzTnbZfydes8CRlpit5fMRiz6lcbICjVyvr2PeBvM4KteSdNWE/6G8pu4fF7KBeiHjVBvCyIugtt9kC17djrexzbMb1CIcE5BFxLQi2nMJ6NZT150s1FwO3MpOXecODo7InM+1jDeOSt2a4lT4DfDuk5cwOfdSJv3d7JFDzX9JpTaoi06Jka9+/HBPgmWwxzG3UWuLxUeLfMbTPziyAD8BcS4e56AuaBzRf4dAdpB5Km9C2hzZpQISL2xzy/K5/J/N4grRBOSN1GPzR1W4Wzk6ZEfNm37+VvgrATk1lMVByh5IrJrvungkipkRAdf8wbhTl+YDmJI0p51RUf+USXY+g47zLCx38jTFdkkh6t7eDG/tHibz84HrwG4nMHxxg6KIkniwpmhXigU/zDsX+XHO+EiQlZ8lDd5LHKujuQ1gdlsphLossRo9DlPE9YecsW0A1iXqyU2l9deSX+C68+y96Z8upIafA13aki78Hebi/LNXAb297+VHFjuVgqWz3QB8f9oUZQf37Zeb8fU4GaW9tiO+IsE/glChb/lbz53WlF+NI/uvNWnR91KKAqAVzVEy7hcp3/h0KKnM0uOmR8p/u4gZs0RqRRUqAwodBcmnME3fcxZlQiE00=
+  app: calm-caverns-35507
+  run:
+    - "npm install"
 
