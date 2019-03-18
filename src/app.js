@@ -2,7 +2,7 @@ const express = require('express')
 const helmet = require('helmet')
 const morgan = require('morgan')
 const { json, urlencoded } = require('body-parser')
-const { logger, httpRequestStream } = require('./helpers/logger')
+const logger = require('./helpers/logger')
 const { isDevelopment } = require('./config')
 
 const app = express()
@@ -12,7 +12,7 @@ app.use(helmet())
 app.use(urlencoded({ extended: false }))
 app.use(json())
 if (isDevelopment) {
-  app.use(morgan('dev', { stream: httpRequestStream }))
+  app.use(morgan('dev', { stream: logger.infoStream }))
 }
 
 // Routes and error handlers

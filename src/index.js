@@ -1,5 +1,5 @@
 const app = require('./app')
-const { logger } = require('./helpers/logger')
+const logger = require('./helpers/logger')
 const { port } = require('./config')
 
 const server = app.listen(port, () => {

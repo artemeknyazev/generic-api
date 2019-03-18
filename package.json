@@ -9,8 +9,7 @@
     "lint": "npx cross-env NODE_ENV=development npx eslint src/**",
     "lint:fix": "npx cross-env NODE_ENV=development npx eslint src/** --fix",
     "dev": "npx cross-env NODE_ENV=development npx nodemon src/index.js",
-    "start": "npx cross-env NODE_ENV=production npx forever start -p ./.forever -l forever.log -o app-out.log -e app-err.log ./src/index.js",
-    "stop": "npx cross-env NODE_ENV=production npx forever stopall --killTree",
+    "start": "npx cross-env NODE_ENV=production npx forever -f src/index.js",
     "build": "mkdir -p ./.forever"
   },
   "repository": {

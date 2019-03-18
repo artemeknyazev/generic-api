@@ -1,13 +1,8 @@
 const winston = require('winston')
-const {
-  isDevelopment,
-  isTesting,
-} = require('../config')
+const { isDevelopment } = require('../config')
 
 const transports = []
-if (isDevelopment || isTesting) {
-  transports.push(new winston.transports.Console())
-}
+transports.push(new winston.transports.Console())
 
 const logger = winston.createLogger({
   level: isDevelopment ? 'debug' : 'warn',
@@ -26,7 +21,6 @@ const createLogStream = level => ({
   },
 })
 
-module.exports = {
-  logger,
-  httpRequestStream: createLogStream('info'),
-}
+logger.infoStream = createLogStream('info')
+
+module.exports = logger
