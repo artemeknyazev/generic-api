@@ -1,5 +1,5 @@
 dist: xenial
 language: node_js
-node_js: 11.00.0
+node_js: 11.0.0
 cache: npm
 
