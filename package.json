@@ -4,13 +4,20 @@
   "description": "Generic API Template",
   "main": "index.js",
   "scripts": {
-    "test": "npx cross-env NODE_ENV=testing npx jest --passWithNoTests --maxWorkers=1 --maxConcurrency=1",
-    "test:watch": "npx cross-env NODE_ENV=testing npx jest --passWithNoTests --watch --maxWorkers=1 --maxConcurrency=1",
-    "lint": "npx cross-env NODE_ENV=development npx eslint src/**",
-    "lint:fix": "npx cross-env NODE_ENV=development npx eslint src/** --fix",
-    "dev": "npx cross-env NODE_ENV=development npx nodemon src/index.js",
-    "start": "npx cross-env NODE_ENV=production npx forever -f src/index.js",
-    "build": "mkdir -p ./.forever"
+    "test-run": "NODE_ENV=testing npx jest --passWithNoTests --maxWorkers=1 --maxConcurrency=1",
+    "test-http": "GENERIC_API_HTTPS_ALLOW=0 npm run test-run",
+    "test-https": "NODE_TLS_REJECT_UNAUTHORIZED=0 GENERIC_API_HTTPS_ALLOW=1 GENERIC_API_HTTPS_KEY_PATH=$(pwd)/.my-private.key GENERIC_API_HTTPS_CERT_PATH=$(pwd)/.my-certificate.crt GENERIC_API_HTTPS_PASS_PATH=$(pwd)/.my-pass.pass npm run test-run",
+    "test": "npm run test-http",
+    "lint": "npx eslint src/**",
+    "lint:fix": "npx eslint src/** --fix",
+    "dev-run": "NODE_ENV=development npx nodemon src/index.js",
+    "dev-http": "GENERIC_API_HTTPS_ALLOW=0 npm run dev-run",
+    "dev-https": "GENERIC_API_HTTPS_ALLOW=1 GENERIC_API_HTTPS_KEY_PATH=$(pwd)/.my-private.key GENERIC_API_HTTPS_CERT_PATH=$(pwd)/.my-certificate.crt GENERIC_API_HTTPS_PASS_PATH=$(pwd)/.my-pass.pass npm run dev-run",
+    "dev": "npm run dev-https",
+    "start": "NODE_ENV=production npx forever -f src/index.js",
+    "generate-dev-cert": "bash bin/generate-dev-cert.sh pass:$(openssl rand -base64 32)",
+    "trust-dev-cert-mac": "sudo security add-trusted-cert -d -r trustRoot -p ssl -s 'localhost' -k ~/Library/Keychains/login.keychain .my-certificate.crt",
+    "cleanup": "rm .*.key .*.csr .*.crt .*.pass &> /dev/null; true"
   },
   "repository": {
     "type": "git",
@@ -24,7 +31,6 @@
   "homepage": "https://github.com/artemeknyazev/generic-api#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "cross-env": "^5.2.0",
     "express": "^4.16.4",
     "forever": "^0.15.3",
     "helmet": "^3.16.0",

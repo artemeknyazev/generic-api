@@ -1,13 +1,18 @@
 const request = require('supertest')
 
 describe('/api', () => {
+  // --- Integration tests preamble start --
   let server = null
+  let closeAllServers = null
   beforeEach(() => {
-    server = require('../../../../src')
+    const serverModule = require('../../../../src')
+    server = serverModule.server
+    closeAllServers = serverModule.closeAllServers
   })
   afterEach(() => {
-    server.close()
+    closeAllServers()
   })
+  // --- Integration tests preamble stop --
 
   describe('GET /', () => {
     it('200 OK by default', async () => {

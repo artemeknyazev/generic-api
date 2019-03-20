@@ -1,20 +1,53 @@
-const app = require('./app')
+/* eslint-disable no-process-exit,global-require */
+const {
+  httpAllow,
+  httpPort,
+  httpsAllow,
+  httpsPort,
+} = require('./config')
 const logger = require('./helpers/logger')
-const { port } = require('./config')
 
-const server = app.listen(port, () => {
-  const addr = server.address()
-  logger.info(`App is listening on ${addr.address}:${addr.port}`)
-})
-
+// Set error handlers before instantiating an application
 process.on('uncaughtException', (err) => {
   logger.error(err)
-  process.exit(1) // eslint-disable-line no-process-exit
+  process.exit(1)
 })
-
-// An unhandled rejection becomes an uncaught exception handled above
 process.on('unhandledRejection', (err) => {
+  // Requalify an unhandled rejection to an uncaught exception
   throw err
 })
 
-module.exports = server
+// Instantiate app servers
+const app = require('./app')
+const createHttpServer = require('./helpers/createHttpServer')
+const createHttpsServer = require('./helpers/createHttpsServer')
+
+let httpServer = null
+let httpsServer = null
+if (httpAllow) {
+  httpServer = createHttpServer(app)
+    .listen(httpPort, () => {
+      const address = httpServer.address()
+      logger.info(`HTTP server is listening on ${address.address}:${address.port}`)
+    })
+}
+if (httpsAllow) {
+  httpsServer = createHttpsServer(app)
+    .listen(httpsPort, () => {
+      const address = httpsServer.address()
+      logger.info(`HTTP server is listening on ${address.address}:${address.port}`)
+    })
+}
+
+function closeAllServers() {
+  httpServer && httpServer.close()
+  httpsServer && httpsServer.close()
+}
+
+module.exports = {
+  httpServer,
+  httpsServer,
+  // tests use whichever provided prioritizing https
+  server: httpsServer || httpServer,
+  closeAllServers,
+}

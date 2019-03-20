@@ -1,12 +1,24 @@
 const request = require('supertest')
 
 describe('/', () => {
+  // --- Integration tests preamble start --
   let server = null
+  let closeAllServers = null
   beforeEach(() => {
-    server = require('../../../src')
+    const serverModule = require('../../../src')
+    server = serverModule.server
+    closeAllServers = serverModule.closeAllServers
   })
   afterEach(() => {
-    server.close()
+    closeAllServers()
+  })
+  // --- Integration tests preamble stop --
+
+  describe('GET /', () => {
+    it('200 OK', async () => {
+      const res = await request(server).get('/')
+      expect(res.status).toBe(200)
+    })
   })
 
   describe('GET /not-a-valid-address', () => {

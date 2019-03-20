@@ -9,7 +9,7 @@ const app = express()
 
 // Middlewares
 app.use(helmet())
-app.use(urlencoded({ extended: false }))
+app.use(urlencoded({ extended: false })) // false prevents injections
 app.use(json())
 if (isDevelopment) {
   app.use(morgan('dev', { stream: logger.infoStream }))
