@@ -34,5 +34,8 @@
         "allowTemplateLiterals": true
       }
     ]
+  },
+  "globals": {
+    "Promise": "readonly"
   }
 }

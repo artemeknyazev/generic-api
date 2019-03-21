@@ -4,7 +4,7 @@
   "description": "Generic API Template",
   "main": "index.js",
   "scripts": {
-    "test-run": "npx jest --passWithNoTests --maxWorkers=1 --maxConcurrency=1",
+    "test-run": "npx jest --maxWorkers 1 --config jest.config.json",
     "test-http": "GENERIC_API_HTTPS_ALLOW=0 npm run test-run",
     "test-https": "NODE_TLS_REJECT_UNAUTHORIZED=0 GENERIC_API_HTTPS_ALLOW=1 GENERIC_API_HTTPS_KEY_PATH=$(pwd)/.my-private.key GENERIC_API_HTTPS_CERT_PATH=$(pwd)/.my-certificate.crt GENERIC_API_HTTPS_PASS_PATH=$(pwd)/.my-pass.pass npm run test-run",
     "test": "npm run test-http",
@@ -38,7 +38,8 @@
     "mongoose": "^5.4.19",
     "morgan": "^1.9.1",
     "supertest": "^4.0.2",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "winston-mongodb": "^5.0.0"
   },
   "devDependencies": {
     "eslint": "^5.15.3",

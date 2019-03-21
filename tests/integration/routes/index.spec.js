@@ -3,14 +3,16 @@ const request = require('supertest')
 describe('/', () => {
   // --- Integration tests preamble start --
   let server = null
-  let closeAllServers = null
-  beforeEach(() => {
-    const serverModule = require('../../../src')
-    server = serverModule.server
-    closeAllServers = serverModule.closeAllServers
+  let shutdown = null
+  beforeEach((done) => {
+    require('../../../src').then(result => {
+      server = result.testServer
+      shutdown = result.shutdown
+      done()
+    })
   })
-  afterEach(() => {
-    closeAllServers()
+  afterEach((done) => {
+    shutdown().then(done)
   })
   // --- Integration tests preamble stop --
 

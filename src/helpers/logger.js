@@ -1,11 +1,35 @@
+/* eslint-disable global-require */
+
+// NOTE:
+//   * Logger is a persistent entity that is initialized before an app
+//   * We can't sensibly pass a logger inside route handlers or other
+//   middlelewares, so we use it as a global object
+//   * However, we're still shutting down a logger manually on an app
+//   shutdown. This is because MongoDB transport's connection to db
+//   persists and we need to shut it down manually
+//   * Also, we don't shut down logger during tests because we're
+//   creating and shutting down the app multiple times while keeping
+//   the same logger
+
 const winston = require('winston')
-const { isDevelopment } = require('../config')
+require('winston-mongodb')
+const config = require('../config')
 
 const transports = []
-transports.push(new winston.transports.Console())
+if (config.logConsoleAllow) {
+  transports.push(new winston.transports.Console())
+}
+if (config.logMongoAllow) {
+  transports.push(new winston.transports.MongoDB({
+    db: config.mongoLogConnStr,
+    collection: config.logMongoCollection,
+    tryReconnect: true,
+    decolorize: true,
+  }))
+}
 
 const logger = winston.createLogger({
-  level: isDevelopment ? 'debug' : 'warn',
+  level: config.logLevel,
   format: winston.format.combine(
     winston.format.colorize(),
     winston.format.splat(),

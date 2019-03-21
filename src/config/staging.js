@@ -7,4 +7,7 @@ module.exports = {
   httpsAllow: false,
   // Heroku provides port number
   httpPort: process.env.PORT,
+  // Allow Mongo logs
+  logMongoAllow: true,
+  logMongoCollection: 'generic-api-staging',
 }
