@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# Constants for certificate generation
+# Constants for generating and working with a certificate
 
 readonly REQUEST_SUBJECT="/C=RU/ST=Moscow/L=Moscow/O=Generic_API_Inc/OU=IT_Department/CN=localhost"
 readonly PRIVATE_KEY_FILE=.my-private.key
