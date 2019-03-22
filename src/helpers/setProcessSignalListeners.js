@@ -1,16 +1,36 @@
 /* eslint-disable no-process-exit,no-console */
 
-module.exports = (shutdown, logger = console) => {
-  async function shutdownListener(signal) {
-    logger(`Received ${signal}, scheduling shutdown`)
-    const result = await shutdown()
-    if (result) {
-      console.info('Shutdown completed, exiting with 0')
-      process.exit(0)
-    } else {
-      console.info('Shutdown is already scheduled')
+module.exports = (
+  shutdown,
+  logger = console,
+  forceExitTime = 20,
+) => {
+  function shutdownListenerCreator() {
+    let isShuttingDown = false
+    return async function shutdownListener(signal) {
+      logger.info(`Received ${signal}, scheduling shutdown`)
+      if (!isShuttingDown) {
+        isShuttingDown = true
+
+        const forceExitTimeout = setTimeout(() => {
+          console.error('Process did not exit after 20 seconds, performing force exit')
+          process.exit(1)
+        }, forceExitTime * 1000)
+
+        const result = await shutdown()
+        if (result) { // shutdown completed
+          clearTimeout(forceExitTimeout)
+          console.info('Shutdown completed, exiting with 0') // There may be no logger, use console
+          process.exit(0)
+          return
+        }
+      }
+      // Is already shutting down or shutdown returned false
+      logger.info('Shutdown is already scheduled')
     }
   }
+
+  const shutdownListener = shutdownListenerCreator()
 
   process.on('SIGTERM', shutdownListener)
   process.on('SIGINT', shutdownListener)

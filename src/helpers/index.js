@@ -1,11 +1,12 @@
 /* eslint-disable global-require */
 
 module.exports = {
+  createShutdown: require('./createShutdown'),
   httpServerCreator: require('./httpServerCreator'),
   httpsServerCreator: require('./httpsServerCreator'),
   instantiateServer: require('./instantiateServer'),
-  logger: require('./logger'),
-  mongo: require('./mongo'),
+  instantiateHttpServer: require('./instantiateHttpServer'),
+  instantiateHttpsServer: require('./instantiateHttpsServer'),
   setProcessErrorListeners: require('./setProcessErrorListeners'),
   setProcessSignalListeners: require('./setProcessSignalListeners'),
 }

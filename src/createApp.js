@@ -2,7 +2,7 @@ const express = require('express')
 const helmet = require('helmet')
 const morgan = require('morgan')
 const { json, urlencoded } = require('body-parser')
-const logger = require('./helpers/logger')
+const logger = require('./modules/logger')
 const routes = require('./routes')
 
 const applyMiddlewares = (config) => (app) => {
@@ -32,7 +32,7 @@ const applyErrorHandler = (app) => {
   return app
 }
 
-module.exports = (config) => {
+module.exports = function createApp(config) {
   const app = express()
   applyMiddlewares(config)(app)
   applyRoutes(app)

@@ -1,5 +1,5 @@
 const config = require('./config')
-const logger = require('./helpers/logger')
+const logger = require('./modules/logger')
 const bootstrap = require('./bootstrap')
 
 module.exports = bootstrap(config)

@@ -25,4 +25,8 @@ module.exports = {
   logMongoCollection: '',
   // Close logger on the app shutdown
   logCloseOnShutdown: true,
+
+  // 4. Shutdown
+  // Process will unconditionally exit after this time when shutdown is scheduled
+  shutdownForceExitTime: process.env.GENERIC_API_SHUTDOWN_FORCE_EXIT_TIME || 20,
 }
