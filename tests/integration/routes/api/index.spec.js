@@ -5,7 +5,7 @@ describe('/api', () => {
   let server = null
   let shutdown = null
   beforeEach((done) => {
-    require('../../../../src').then(result => {
+    require('src/index').then(result => {
       server = result.testServer
       shutdown = result.shutdown
       done()

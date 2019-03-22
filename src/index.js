@@ -1,6 +1,6 @@
-const config = require('./config')
-const logger = require('./modules/logger')
-const bootstrap = require('./bootstrap')
+const config = require('src/config')
+const logger = require('src/modules/logger')
+const bootstrap = require('src/bootstrap')
 
 module.exports = bootstrap(config)
   .then(result => {

@@ -2,8 +2,8 @@ const express = require('express')
 const helmet = require('helmet')
 const morgan = require('morgan')
 const { json, urlencoded } = require('body-parser')
-const logger = require('./modules/logger')
-const routes = require('./routes')
+const logger = require('src/modules/logger')
+const routes = require('src/routes')
 
 const applyMiddlewares = (config) => (app) => {
   app.use(helmet())

@@ -5,10 +5,10 @@ const {
   instantiateHttpServer,
   instantiateHttpsServer,
   createShutdown,
-} = require('./helpers')
-const mongo = require('./modules/db/mongo')
-const logger = require('./modules/logger')
-const createApp = require('./createApp')
+} = require('src/helpers')
+const mongo = require('src/modules/db/mongo')
+const logger = require('src/modules/logger')
+const createApp = require('src/createApp')
 
 module.exports = async function bootstrap(config) {
   // Add exception and unhandled rejection event listeners
