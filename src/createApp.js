@@ -34,6 +34,10 @@ const applyErrorHandler = (app) => {
 
 module.exports = function createApp(config) {
   const app = express()
+  if (config.isTesting) {
+    // Prevent logging during tests
+    app.set('env', 'test')
+  }
   applyMiddlewares(config)(app)
   applyRoutes(app)
   applyErrorHandler(app)

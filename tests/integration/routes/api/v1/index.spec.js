@@ -1,6 +1,6 @@
 const request = require('supertest')
 
-describe('/api', () => {
+describe('/api/v1', () => {
   // --- Integration tests preamble start --
   let server = null
   let shutdown = null
@@ -18,18 +18,18 @@ describe('/api', () => {
 
   describe('GET /', () => {
     it('200 OK by default', async () => {
-      const res = await request(server).get('/api')
+      const res = await request(server).get('/api/v1')
       expect(res.status).toBe(200)
     })
   })
 
   describe('GET /not-a-valid-api-call', () => {
     it('404 not found', async () => {
-      const res = await request(server).get('/api/not-a-valid-api-call')
-      expect(res.status).toBe(404)
+      const res = await request(server).get('/api/v1/not-a-valid-api-call')
+      expect(res.status).toBe(405)
       expect(res.body).toMatchObject({
         status: 'error',
-        payload: 'Unknown API operation',
+        payload: 'Method Not Allowed',
       })
     })
   })

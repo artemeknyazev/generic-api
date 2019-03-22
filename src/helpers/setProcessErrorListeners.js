@@ -6,15 +6,15 @@ module.exports = (logger = console) => {
     logger.error(err)
     process.exit(1)
   }
-  function unhadledRejectionistener(err) {
+  function unhadledRejectionListener(err) {
     // Requalify an unhandled rejection to an uncaught exception
     throw err
   }
   process.on('uncaughtException', uncaughtExceptionListener)
-  process.on('unhandledRejection', unhadledRejectionistener)
+  process.on('unhandledRejection', unhadledRejectionListener)
 
   return function removeListeners() {
     process.removeListener('uncaughtException', uncaughtExceptionListener)
-    process.removeListener('unhandledRejection', unhadledRejectionistener)
+    process.removeListener('unhandledRejection', unhadledRejectionListener)
   }
 }
