@@ -1,43 +1,64 @@
 const mongoose = require('mongoose')
 const {
-  setProcessEventListeners,
+  setProcessErrorListeners,
   mongo,
   logger,
   httpServerCreator,
   httpsServerCreator,
   instantiateServer,
+  setProcessSignalListeners,
 } = require('./helpers')
 const createApp = require('./createApp')
 
 const createShutdown = ({
   httpServer,
   httpsServer,
-  removeProcessEventListeners,
+  removeProcessErrorListeners,
   logCloseOnShutdown,
   closeLogger,
-}) =>
-  async () => {
-    // Close HTTP server
-    if (httpServer) {
-      await new Promise(resolve => httpServer.close(resolve))
+}) => {
+  let isShuttingDown = false
+  return async () => {
+    // Multiple calls to shutdown result in shutting down only once
+    if (isShuttingDown) {
+      return false // shutdown in process
     }
-    // Close HTTPS server
-    if (httpsServer) {
-      await new Promise(resolve => httpsServer.close(resolve))
+    isShuttingDown = true
+    try {
+      // Close HTTP server
+      if (httpServer) {
+        await new Promise(resolve => httpServer.close(resolve))
+      }
+      // Close HTTPS server
+      if (httpsServer) {
+        await new Promise(resolve => httpsServer.close(resolve))
+      }
+      // Disconnect Mongo
+      await mongoose.disconnect()
+    } catch (err) {
+      logger.error(err)
     }
-    // Disconnect Mongo
-    await mongoose.disconnect()
+    // Remove listeners before logger because they use logger
+    removeProcessErrorListeners()
+    // Handle 'uncaught' and 'unhandled' errors from here on using console instead of logger
+    setProcessErrorListeners(console)
     // Close logger if required (tests allow logger to persist)
     if (logCloseOnShutdown) {
-      closeLogger()
+      try {
+        // NOTE: No way to subscribe for 'everything closed' event, close synchronously
+        closeLogger()
+      } catch (err) {
+        console.error(`closeLogger: ${err}`) // eslint-disable-line no-console
+      }
     }
-    // Remove exception and unhandled unrejection listeners
-    removeProcessEventListeners()
+    // NOTE: shutdown doesn't exit, exits it's caller
+    return true // shutdown completed
   }
+}
 
 module.exports = async (config) => {
-  // Add exception and promise rejection event listeners
-  const removeProcessEventListeners = setProcessEventListeners(logger)
+  // Add exception and unhandled rejection event listeners
+  const removeProcessErrorListeners = setProcessErrorListeners(logger)
 
   // Connect to mongo using the default connection
   await mongo(config.mongoMainConnStr)
@@ -75,10 +96,13 @@ module.exports = async (config) => {
   const shutdown = createShutdown({
     httpServer,
     httpsServer,
-    removeProcessEventListeners,
+    removeProcessErrorListeners,
     logCloseOnShutdown: config.logCloseOnShutdown,
     closeLogger: () => logger.close(),
   })
+
+  // Handle graceful shutdown
+  setProcessSignalListeners(shutdown, logger)
 
   return {
     httpServer,

@@ -12,9 +12,9 @@ describe('/', () => {
     })
   })
   afterEach((done) => {
-    shutdown().then(done)
+    shutdown().then(() => done())
   })
-  // --- Integration tests preamble stop --
+  // --- Integration tests preamble end --
 
   describe('GET /', () => {
     it('200 OK', async () => {

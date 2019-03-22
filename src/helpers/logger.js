@@ -12,6 +12,8 @@
 //   the same logger
 
 const winston = require('winston')
+// TODO: rewrite using custom transport that uses mongoose
+// NOTE: this will fix 'no way to wait until logger.close' problem
 require('winston-mongodb')
 const config = require('../config')
 

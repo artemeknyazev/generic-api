@@ -6,5 +6,6 @@ module.exports = {
   instantiateServer: require('./instantiateServer'),
   logger: require('./logger'),
   mongo: require('./mongo'),
-  setProcessEventListeners: require('./setProcessEventListeners')
+  setProcessErrorListeners: require('./setProcessErrorListeners'),
+  setProcessSignalListeners: require('./setProcessSignalListeners'),
 }
