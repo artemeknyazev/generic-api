@@ -2,11 +2,12 @@
 
 module.exports = {
   createShutdown: require('./createShutdown'),
+  createShutdownSignalListener: require('./createShutdownSignalListener'),
   httpServerCreator: require('./httpServerCreator'),
   httpsServerCreator: require('./httpsServerCreator'),
   instantiateServer: require('./instantiateServer'),
   instantiateHttpServer: require('./instantiateHttpServer'),
   instantiateHttpsServer: require('./instantiateHttpsServer'),
   setProcessErrorListeners: require('./setProcessErrorListeners'),
-  setProcessSignalListeners: require('./setProcessSignalListeners'),
+  setProcessShutdownSignalListeners: require('./setProcessShutdownSignalListeners'),
 }

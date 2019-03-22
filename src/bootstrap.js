@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const {
   setProcessErrorListeners,
-  setProcessSignalListeners,
+  setProcessShutdownSignalListeners,
   instantiateHttpServer,
   instantiateHttpsServer,
   createShutdown,
@@ -45,7 +45,7 @@ module.exports = async function bootstrap(config) {
   })
 
   // Handle graceful shutdown
-  setProcessSignalListeners(shutdown, logger, config.shutdownForceExitTime)
+  setProcessShutdownSignalListeners(shutdown, logger, config.shutdownForceExitTime)
 
   return {
     httpServer,
