@@ -21,7 +21,7 @@ const applyRoutes = (app) => {
 }
 
 const applyErrorHandler = (app) => {
-  app.use((err, req, res) => {
+  app.use(function(err, req, res, next) { // eslint-disable-line no-unused-vars
     logger.error(err)
     res.status(500)
     res.send({

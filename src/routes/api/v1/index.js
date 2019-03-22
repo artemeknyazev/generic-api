@@ -1,4 +1,3 @@
-// const { STATUS_CODES } = require('http')
 const createError = require('http-errors')
 const express = require('express')
 const router = express.Router()
