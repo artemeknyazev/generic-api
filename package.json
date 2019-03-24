@@ -4,7 +4,7 @@
   "description": "Generic API Template",
   "main": "index.js",
   "scripts": {
-    "test-run": "NODE_PATH=./ npx jest --maxWorkers 1 --config jest.config.json",
+    "test-run": "NODE_PATH=./ NODE_ENV=testing npx jest --maxWorkers 1 --config jest.config.json",
     "test-http": "GENERIC_API_HTTPS_ALLOW=0 npm run test-run",
     "test-https": "NODE_TLS_REJECT_UNAUTHORIZED=0 GENERIC_API_HTTPS_ALLOW=1 GENERIC_API_HTTPS_KEY_PATH=$(pwd)/.my-private.key GENERIC_API_HTTPS_CERT_PATH=$(pwd)/.my-certificate.crt GENERIC_API_HTTPS_PASS_PATH=$(pwd)/.my-pass.pass npm run test-run",
     "test": "npm run test-http",
@@ -30,6 +30,8 @@
   },
   "homepage": "https://github.com/artemeknyazev/generic-api#readme",
   "dependencies": {
+    "ajv": "^6.10.0",
+    "ajv-async": "^1.0.1",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "forever": "^0.15.3",
@@ -39,6 +41,7 @@
     "mongoose": "^5.4.19",
     "morgan": "^1.9.1",
     "supertest": "^4.0.2",
+    "validator": "^10.11.0",
     "winston": "^3.2.1",
     "winston-mongodb": "^5.0.0"
   },

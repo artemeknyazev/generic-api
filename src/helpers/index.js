@@ -12,4 +12,5 @@ module.exports = {
   instantiateServer: require('./instantiateServer'),
   setProcessErrorListeners: require('./setProcessErrorListeners'),
   setProcessShutdownSignalListeners: require('./setProcessShutdownSignalListeners'),
+  validate: require('./validate'),
 }
