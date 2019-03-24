@@ -1,13 +1,13 @@
-const mongoose = require('mongoose')
 const {
+  createLogger,
+  createMongoConnection,
   setProcessErrorListeners,
   setProcessShutdownSignalListeners,
-  instantiateHttpServer,
-  instantiateHttpsServer,
+  createHttpServer,
+  createHttpsServer,
   createShutdown,
 } = require('src/helpers')
-const mongo = require('src/modules/db/mongo')
-const createLogger = require('src/modules/logger')
+const createModels = require('src/models')
 const createApp = require('src/createApp')
 
 module.exports = async function bootstrap(config) {
@@ -17,21 +17,23 @@ module.exports = async function bootstrap(config) {
   // Add exception and unhandled rejection event listeners
   const removeProcessErrorListeners = setProcessErrorListeners(logger)
 
-  // Connect to mongo using the default connection
-  await mongo(config.mongoMainConnStr)
+  // Connect to mongo and create models for this db connection
+  const mongoConnection = await createMongoConnection(config, logger)
+  const models = createModels(mongoConnection)
 
-  // Instantiate express app
-  const app = createApp(config, logger)
+  // Create express app
+  // models and logger are available in middlewares using app.get('models'|'logger')
+  const app = createApp(config, { models, logger })
 
   // Create HTTP server if required
-  let httpServer = await instantiateHttpServer(config)(app)
+  let httpServer = await createHttpServer(config)(app)
   if (httpServer) {
     const { address, port } = httpServer.address()
     logger.info(`HTTP server is listening on ${address}:${port}`)
   }
 
   // Create HTTPS server if required
-  let httpsServer = await instantiateHttpsServer(config)(app)
+  let httpsServer = await createHttpsServer(config)(app)
   if (httpsServer) {
     const { address, port } = httpsServer.address()
     logger.info(`HTTPS server is listening on ${address}:${port}`)
@@ -43,7 +45,7 @@ module.exports = async function bootstrap(config) {
     httpsServer,
     removeProcessErrorListeners,
     logger,
-    mongoose,
+    mongoConnection,
   })
 
   // Handle graceful shutdown

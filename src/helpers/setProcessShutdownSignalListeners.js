@@ -6,8 +6,8 @@ module.exports = (
   logger = console,
   forceExitTime = 20,
 ) => {
-  const shutdownListener = createShutdownSignalListener(shutdown, logger, forceExitTime)
+  const shutdownSignalListener = createShutdownSignalListener(shutdown, logger, forceExitTime)
 
-  process.on('SIGTERM', shutdownListener)
-  process.on('SIGINT', shutdownListener)
+  process.on('SIGTERM', shutdownSignalListener)
+  process.on('SIGINT', shutdownSignalListener)
 }

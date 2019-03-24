@@ -12,15 +12,16 @@ module.exports = function createShutdownSignalListener(
     if (!isShuttingDown) {
       isShuttingDown = true
 
+      // There may be no logger after shutdown, use console
       const forceExitTimeout = setTimeout(() => {
-        console.error('Process did not exit after 20 seconds, performing force exit')
+        console.error(`Process did not exit after ${forceExitTime} seconds, performing force exit`)
         process.exit(1)
       }, forceExitTime * 1000)
 
       const result = await shutdown()
       if (result) { // shutdown completed
         clearTimeout(forceExitTimeout)
-        console.info('Shutdown completed, exiting with 0') // There may be no logger, use console
+        console.info('Shutdown completed, exiting with 0')
         process.exit(0)
         return
       }

@@ -3,8 +3,7 @@ module.exports = function createShutdown({
   httpsServer,
   removeProcessErrorListeners,
   logger,
-  // TODO: change to a list of mongo connections instead of a whole mongoose object
-  mongoose,
+  mongoConnection,
 }) {
   let isShuttingDown = false
   return async function shutdown() {
@@ -32,9 +31,9 @@ module.exports = function createShutdown({
       }
     }
 
-      // Disconnect Mongo
+    // Disconnect Mongo
     try {
-      await mongoose.disconnect()
+      await new Promise(resolve => mongoConnection.close(resolve))
     } catch (err) {
       logger.error(err)
     }

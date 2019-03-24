@@ -16,6 +16,8 @@ module.exports = {
 
   // 2. Databases
   mongoMainConnStr: process.env.GENERIC_API_MONGO_DB || '',
+  mongoMainReconnectTries: 10,
+  mongoMainReconnectInterval: 1000,
   mongoLogConnStr: process.env.GENERIC_API_LOG_MONGO_DB || '',
 
   // 3. Logging
