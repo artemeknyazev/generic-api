@@ -7,10 +7,13 @@ const {
   createShutdown,
 } = require('src/helpers')
 const mongo = require('src/modules/db/mongo')
-const logger = require('src/modules/logger')
+const createLogger = require('src/modules/logger')
 const createApp = require('src/createApp')
 
 module.exports = async function bootstrap(config) {
+  // Create logger
+  const logger = createLogger(config)
+
   // Add exception and unhandled rejection event listeners
   const removeProcessErrorListeners = setProcessErrorListeners(logger)
 
@@ -18,7 +21,7 @@ module.exports = async function bootstrap(config) {
   await mongo(config.mongoMainConnStr)
 
   // Instantiate express app
-  const app = createApp(config)
+  const app = createApp(config, logger)
 
   // Create HTTP server if required
   let httpServer = await instantiateHttpServer(config)(app)
@@ -39,7 +42,6 @@ module.exports = async function bootstrap(config) {
     httpServer,
     httpsServer,
     removeProcessErrorListeners,
-    logCloseOnShutdown: config.logCloseOnShutdown,
     logger,
     mongoose,
   })
@@ -51,6 +53,7 @@ module.exports = async function bootstrap(config) {
     httpServer,
     httpsServer,
     testServer: httpsServer || httpServer,
+    logger,
     shutdown,
   }
 }

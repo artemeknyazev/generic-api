@@ -2,7 +2,6 @@ const express = require('express')
 const helmet = require('helmet')
 const morgan = require('morgan')
 const { json, urlencoded } = require('body-parser')
-const logger = require('src/modules/logger')
 const routes = require('src/routes')
 
 const applyMiddlewares = (config) => (app) => {
@@ -10,7 +9,7 @@ const applyMiddlewares = (config) => (app) => {
   app.use(urlencoded({ extended: false })) // false prevents injections
   app.use(json())
   if (config.isDevelopment) {
-    app.use(morgan('dev', { stream: logger.infoStream }))
+    app.use(morgan('dev', { stream: app.get('logger').infoStream }))
   }
   return app
 }
@@ -22,7 +21,7 @@ const applyRoutes = (app) => {
 
 const applyErrorHandler = (app) => {
   app.use(function(err, req, res, next) { // eslint-disable-line no-unused-vars
-    logger.error(err)
+    app.get('logger').error(err)
     res.status(500)
     res.send({
       status: 'error',
@@ -32,14 +31,23 @@ const applyErrorHandler = (app) => {
   return app
 }
 
-module.exports = function createApp(config) {
+module.exports = function createApp(config, logger) {
   const app = express()
+
+  // Set logger as an app's setting. Get logger using:
+  //   * app.get('logger')
+  //   * req.app.get('logger')
+  //   * res.app.get('logger')
+  app.set('logger', logger)
+
   if (config.isTesting) {
-    // Prevent logging during tests
+    // Prevent internal logging during tests
     app.set('env', 'test')
   }
+
   applyMiddlewares(config)(app)
   applyRoutes(app)
   applyErrorHandler(app)
+
   return app
 }

@@ -2,7 +2,8 @@ const parent = require('./global')
 
 module.exports = {
   ...parent,
+
   logLevel: 'debug',
-  logMongoAllow: true,
-  logMongoCollection: 'generic-api-development',
+  logTransportMongoAllow: true,
+  logTransportMongoCollection: 'generic-api-development',
 }
