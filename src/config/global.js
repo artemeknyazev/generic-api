@@ -20,11 +20,10 @@ module.exports = {
 
   // 3. Logging
   logLevel: 'warn',
-  logConsoleAllow: true,
-  logMongoAllow: true,
-  logMongoCollection: '',
-  // Close logger on the app shutdown
-  logCloseOnShutdown: true,
+  logFormatList: [ 'colorize', 'simple' ],
+  logTransportConsoleAllow: true,
+  logTransportMongoAllow: false,
+  logTransportMongoCollection: '',
 
   // 4. Shutdown
   // Process will unconditionally exit after this time when shutdown is scheduled
