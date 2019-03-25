@@ -1,4 +1,6 @@
 const express = require('express')
+// Handle nicely throws in async middlewares
+require('express-async-errors')
 const helmet = require('helmet')
 const morgan = require('morgan')
 const { json, urlencoded } = require('body-parser')
@@ -58,7 +60,9 @@ module.exports = function createApp(config, envEntities = {}) {
 
   applySettings(config, envEntities)(app)
   applyMiddlewares(config)(app)
-  applyRouters([ { path: '/', router: routes } ])(app)
+  applyRouters([
+    { path: '/', router: routes },
+  ])(app)
   applyErrorHandler(app)
 
   return app
