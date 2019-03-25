@@ -1,5 +1,6 @@
 const Ajv = require('ajv')
 const AjvKeywordsMixin = require('ajv-keywords')
+const SanitizeKeywordMixin = require('./SanitizeKeywordMixin')
 
 // NOTE: In Ajv sync and async validation have different 'interfaces'
 // This helper ensures a consistent interface by:
@@ -21,6 +22,7 @@ module.exports = function validate(schema, data, cb) {
     '$data': true,
   })
   AjvKeywordsMixin(ajv, [ 'transform' ])
+  SanitizeKeywordMixin(ajv)
 
   // NOTE: `additionalProperties: false` and `removeAdditional: true`
   // will modify data directly to contain ONLY properties defined in schema

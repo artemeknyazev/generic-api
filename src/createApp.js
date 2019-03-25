@@ -20,6 +20,9 @@ const applySettings = (config, envEntities = {}) => (app) => {
     app.set('env', 'test')
   }
 
+  // Set auth private key; named so that one wouldn't request it by accident
+  app.set('__JWT_PRIVATE_KEY__', config.authJwtPrivateKey)
+
   return app
 }
 
