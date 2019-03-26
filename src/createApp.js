@@ -4,6 +4,8 @@ require('express-async-errors')
 const helmet = require('helmet')
 const morgan = require('morgan')
 const { json, urlencoded } = require('body-parser')
+const cookieParser = require('cookie-parser')
+const { authenticate } = require('src/middlewares')
 const routes = require('src/routes')
 
 const applySettings = (config, envEntities = {}) => (app) => {
@@ -28,11 +30,13 @@ const applySettings = (config, envEntities = {}) => (app) => {
 
 const applyMiddlewares = (config) => (app) => {
   app.use(helmet())
+  app.use(cookieParser())
   app.use(urlencoded({ extended: false })) // false prevents injections
   app.use(json())
   if (config.isDevelopment) {
     app.use(morgan('dev', { stream: app.get('logger').infoStream }))
   }
+  app.use(authenticate)
 
   return app
 }

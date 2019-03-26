@@ -2,9 +2,16 @@
 
 const createHttpError = require('http-errors')
 const express = require('express')
+const { isApiAuthenticated } = require('src/middlewares')
 const router = express.Router()
 
-router.use('/user', require('./user'))
+router.use(
+  '/user',
+
+  isApiAuthenticated,
+  require('./user')
+)
+
 router.use('/signup', require('./signup'))
 router.use('/login', require('./login'))
 

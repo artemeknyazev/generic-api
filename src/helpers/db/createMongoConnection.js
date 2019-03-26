@@ -12,6 +12,7 @@ module.exports = (config, logger) =>
         useNewUrlParser: true,
         // Prevent deprecation warning
         useCreateIndex: true,
+        useFindAndModify: false,
         // Keep connection alive
         keepAlive: true,
         keepAliveInitialDelay: 300000,
