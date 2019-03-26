@@ -1,4 +1,4 @@
-const validate = require('src/helpers/validate')
+const { validate } = require('src/helpers')
 
 // NOTE: validate (and Ajv inside) will directly modify the specified request part
 
