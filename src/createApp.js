@@ -37,6 +37,7 @@ const applyMiddlewares = (config) => (app) => {
     app.use(morgan('dev', { stream: app.get('logger').infoStream }))
   }
   app.use(authenticate)
+  // TODO: rate limiting!
 
   return app
 }

@@ -9,10 +9,18 @@ router.use(
   '/user',
 
   isApiAuthenticated,
-  require('./user')
+  require('./user'),
+)
+
+router.use(
+  '/projects',
+
+  isApiAuthenticated,
+  require('./projects'),
 )
 
 router.use('/signup', require('./signup'))
+router.use('/reactivate', require('./reactivate'))
 router.use('/login', require('./login'))
 
 // Catch-em-all route for unsupported methods

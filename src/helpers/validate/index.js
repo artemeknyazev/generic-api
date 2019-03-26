@@ -1,5 +1,6 @@
 const Ajv = require('ajv')
 const AjvKeywordsMixin = require('ajv-keywords')
+const ObjectIdFormatMixin = require('./ObjectIdFormatMixin')
 const SanitizeKeywordMixin = require('./SanitizeKeywordMixin')
 
 // NOTE: In Ajv sync and async validation have different 'interfaces'
@@ -11,22 +12,23 @@ const SanitizeKeywordMixin = require('./SanitizeKeywordMixin')
 
 // NOTE: no need to return a Promise, this will be used inside a middleware
 
-module.exports = function validate(schema, data, cb) {
+module.exports = function validate(schema, data, removeAdditional = true, cb) {
   // Always create a new instance to prevent race conditions
   const ajv = new Ajv({
     // remove fields not present in the schema
-    removeAdditional: true,
+    removeAdditional,
     // show all errors instead of showing them one-by-one
     allErrors: true,
     // Prevent errors from ajv-keywords
     '$data': true,
   })
   AjvKeywordsMixin(ajv, [ 'transform' ])
+  ObjectIdFormatMixin(ajv)
   SanitizeKeywordMixin(ajv)
 
   // NOTE: `additionalProperties: false` and `removeAdditional: true`
   // will modify data directly to contain ONLY properties defined in schema
-  schema.additionalProperties = false
+  schema.additionalProperties = !removeAdditional
   const result = ajv.validate(schema, data)
 
   if (result instanceof Promise) {

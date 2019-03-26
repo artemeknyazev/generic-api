@@ -14,7 +14,7 @@ router.post(
     const { email, password } = req.body
 
     // NOTE: User.passwordHash field is not selected by default, request explicitly
-    const user = await User.findOne({ email })
+    const user = await User.findActiveByEmail(email)
       .select('+passwordHash')
       .exec()
     if (!user) {

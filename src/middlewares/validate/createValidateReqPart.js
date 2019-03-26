@@ -2,7 +2,7 @@ const { validate } = require('src/helpers')
 
 // NOTE: validate (and Ajv inside) will directly modify the specified request part
 
-module.exports = function createValidateReqPart(reqPart) {
+module.exports = function createValidateReqPart(reqPart, removeAdditional = true) {
   if (!['params', 'query', 'body'].includes(reqPart)) {
     throw new Error('createValidateReqPart: reqPart should be one of \'params\', \'query\', \'body\'')
   }
@@ -20,7 +20,7 @@ module.exports = function createValidateReqPart(reqPart) {
 
       const data = req[reqPart]
 
-      return validate(actualSchema, data, next)
+      return validate(actualSchema, data, removeAdditional, next)
     }
   }
 }

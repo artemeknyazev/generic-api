@@ -13,9 +13,17 @@ router.post(
     const { User } = req.app.get('models')
     const { name, email, password } = req.body
 
-    const existingUser = await User.findOne({ email }).exec()
+    const existingUser = await User.findByEmail(email).exec()
     if (existingUser) {
-      return next(createHttpError(400, 'User already registered'))
+      if (existingUser.status === 'active') {
+        return next(createHttpError(400, 'User already registered'))
+      } else if (existingUser.status === 'removed') {
+        return next(createHttpError(400, 'User were removed. Reactivate using /api/v1/reactivate'))
+      } else {
+        // Alert when new status was introduced but we forgot to handle it here
+        req.app.logger.error(`Signup with an email of an existing user, unknown existing user status '${existingUser.status}'`)
+        return next(createHttpError(400, 'User already registered'))
+      }
     }
 
     const salt = await bcrypt.genSalt(10)

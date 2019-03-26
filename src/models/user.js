@@ -19,7 +19,15 @@ const UserSchema = new Schema({
     select: false,
     hide: true,
   },
+  status: {
+    type: String,
+    enum: [ 'active', 'removed' ],
+    default: 'active',
+  },
 })
+
+// Find user by email [and status = active]
+UserSchema.index({ email: 1, status: 1 })
 
 UserSchema.plugin(mongooseHidden())
 
@@ -34,6 +42,26 @@ UserSchema.methods.generateAuthToken =
   function generateAuthToken(jwtPrivateKey, cb) {
     const tokenPayload = this.toTokenPayload()
     jwt.sign(tokenPayload, jwtPrivateKey, cb)
+  }
+
+UserSchema.static.findActiveById =
+  function findActiveById(id, projection, options, cb) {
+    return this.findOne({ _id: id, status: 'active' }, projection, options, cb)
+  }
+
+UserSchema.static.findByEmail =
+  function findActiveById(email, projection, options, cb) {
+    return this.findOne({ email }, projection, options, cb)
+  }
+
+UserSchema.static.findActiveByEmail =
+  function findActiveById(email, projection, options, cb) {
+    return this.findOne({ email, status: 'active' }, projection, options, cb)
+  }
+
+UserSchema.static.removeById =
+  function removeById(id, cb) {
+    return this.update({ _id: id }, { status: 'removed' }, cb)
   }
 
 module.exports = function createUserModel(mongoConnection) {
