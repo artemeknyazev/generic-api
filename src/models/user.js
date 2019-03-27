@@ -23,6 +23,8 @@ const UserSchema = new Schema({
     type: String,
     enum: [ 'active', 'removed' ],
     default: 'active',
+    select: false,
+    hide: true,
   },
 })
 
