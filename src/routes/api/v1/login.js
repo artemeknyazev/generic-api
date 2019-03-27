@@ -37,12 +37,9 @@ router.post(
 
       res.status(200)
       res.header('x-generic-api-auth-token', token)
-      res.send({
-        status: 'ok',
-        payload: {
-          ...user.toJSON(),
-          token,
-        }
+      res.sendApiOk({
+        ...user.toJSON(),
+        token,
       })
     })
   },

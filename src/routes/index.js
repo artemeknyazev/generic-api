@@ -9,8 +9,7 @@ router.get('/', (req, res) => {
 })
 
 router.all('*', (req, res) => {
-  res.status(404)
-  res.send('404 — Unknown path')
+  res.sendStatus(404)
 })
 
 module.exports = router

@@ -5,7 +5,7 @@ const helmet = require('helmet')
 const morgan = require('morgan')
 const { json, urlencoded } = require('body-parser')
 const cookieParser = require('cookie-parser')
-const { authenticate } = require('src/middlewares')
+const { authenticate, apiResponse } = require('src/middlewares')
 const routes = require('src/routes')
 
 const applySettings = (config, envEntities = {}) => (app) => {
@@ -37,6 +37,7 @@ const applyMiddlewares = (config) => (app) => {
     app.use(morgan('dev', { stream: app.get('logger').infoStream }))
   }
   app.use(authenticate)
+  app.use(apiResponse)
   // TODO: rate limiting!
 
   return app

@@ -18,7 +18,7 @@ router.get(
     const projectList = await Project.findActiveForUser(req.user._id).exec()
     const result = projectList.map(project => project.toJSON())
     res.status(200)
-    res.send(result)
+    res.sendApiOk(result)
   }
 )
 
@@ -31,7 +31,7 @@ router.post(
     const { Project } = req.app.get('models')
     const newProject = await new Project({ ...req.body, owner: req.user._id }).save()
     res.status(200)
-    res.send(newProject.toJSON())
+    res.sendApiOk(newProject.toJSON())
   }
 )
 
@@ -43,7 +43,7 @@ router.get(
   authorizeProjectView,
   async (req, res) => {
     res.status(200)
-    res.send(req.project.toJSON())
+    res.sendApiOk(req.project.toJSON())
   }
 )
 
@@ -68,7 +68,7 @@ router.patch(
       )
       .exec()
     res.status(200)
-    res.send(project.toJSON())
+    res.sendApiOk(project.toJSON())
   }
 )
 
@@ -82,7 +82,8 @@ router.delete(
     const { Project } = req.app.get('models')
     await Project.removeById(req.project._id)
     // project removed, no content
-    res.sendStatus(204)
+    res.status(204)
+    res.sendApiOk()
   }
 )
 

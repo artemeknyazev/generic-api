@@ -32,10 +32,7 @@ router.post(
     const newUser = await new User({ name, email, passwordHash }).save()
 
     res.status(200)
-    res.send({
-      status: 'ok',
-      payload: newUser.toJSON(),
-    })
+    res.sendApiOk(newUser.toJSON())
   }
 )
 

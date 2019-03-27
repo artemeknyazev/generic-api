@@ -2,6 +2,7 @@
 
 module.exports = {
   acquireProject: require('./acquire/acquireProject'),
+  apiResponse: require('./apiResponse'),
   authenticate: require('./authenticate/authenticate'),
   authorizeProjectEdit: require('./authorize/authorizeProjectEdit'),
   authorizeProjectView: require('./authorize/authorizeProjectView'),

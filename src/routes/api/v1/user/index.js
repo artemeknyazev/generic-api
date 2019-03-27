@@ -8,10 +8,7 @@ router.get(
 
   (req, res) => {
     res.status(200)
-    res.send({
-      status: 'ok',
-      payload: req.user.toJSON(),
-    })
+    res.sendApiOk(req.user.toJSON())
   }
 )
 
@@ -30,10 +27,7 @@ router.patch(
       )
       .exec()
     res.status(200)
-    res.send({
-      status: 'ok',
-      payload: user.toJSON(),
-    })
+    res.sendApiOk(user.toJSON())
   }
 )
 
@@ -46,9 +40,7 @@ router.delete(
     await User.removeById(req.user._id)
     // user removed, no content
     res.status(204)
-    res.send({
-      status: 'ok',
-    })
+    res.sendApiOk()
   }
 )
 

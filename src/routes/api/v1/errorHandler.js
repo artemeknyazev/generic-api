@@ -44,13 +44,9 @@ module.exports = function errorHandler(err, req, res, next) { // eslint-disable-
       logger.error(err)
     }
   } else {
-    // TODO: log requests too
     logger.error('Arrived in /api/v1 error handler without an exception')
   }
 
   res.status(statusCode)
-  res.send({
-    status: 'error',
-    payload,
-  })
+  res.sendApiErr(payload)
 }
