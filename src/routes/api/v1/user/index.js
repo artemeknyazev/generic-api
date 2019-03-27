@@ -3,10 +3,17 @@ const router = express.Router()
 const { validateBody } = require('src/middlewares')
 
 // Show user info for currently logged in user
-router.get('/', (req, res) => {
-  res.status(200)
-  res.send(req.user.toJSON())
-})
+router.get(
+  '/',
+
+  (req, res) => {
+    res.status(200)
+    res.send({
+      status: 'ok',
+      payload: req.user.toJSON(),
+    })
+  }
+)
 
 // Edit user info for currently logged in user
 router.patch(
@@ -23,16 +30,26 @@ router.patch(
       )
       .exec()
     res.status(200)
-    res.send(user.toJSON())
+    res.send({
+      status: 'ok',
+      payload: user.toJSON(),
+    })
   }
 )
 
 // Remove currently logged in user
-router.delete('/', async (req, res) => {
-  const { User } = req.app.get('models')
-  await User.removeById(req.user._id)
-  // user removed, no content
-  res.sendStatus(204)
-})
+router.delete(
+  '/',
+
+  async (req, res) => {
+    const { User } = req.app.get('models')
+    await User.removeById(req.user._id)
+    // user removed, no content
+    res.status(204)
+    res.send({
+      status: 'ok',
+    })
+  }
+)
 
 module.exports = router

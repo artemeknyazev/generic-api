@@ -19,7 +19,7 @@ function authenticateMiddleware(req, res, next) {
     }
 
     const { User } = req.app.get('models')
-    const user = await User.findById(tokenPayload._id)
+    const user = await User.findActiveById(tokenPayload._id)
     // Token is ok, but user can't be found
     if (!user) {
       return next()

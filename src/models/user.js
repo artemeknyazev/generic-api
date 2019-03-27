@@ -63,7 +63,7 @@ UserSchema.statics.findActiveByEmail =
 
 UserSchema.statics.removeById =
   function removeById(id, cb) {
-    return this.update({ _id: id }, { status: 'removed' }, cb)
+    return this.updateOne({ _id: id }, { status: 'removed' }, cb)
   }
 
 module.exports = function createUserModel(mongoConnection) {

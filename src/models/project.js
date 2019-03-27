@@ -59,7 +59,7 @@ ProjectSchema.statics.findActiveForUser =
 
 ProjectSchema.statics.removeById =
   function removeById(id, cb) {
-    return this.update({ _id: id }, { status: 'removed' }, cb)
+    return this.updateOne({ _id: id }, { status: 'removed' }, cb)
   }
 
 module.exports = function createProjectModel(mongoConnection) {
