@@ -1,5 +1,4 @@
 const express = require('express')
-const createHttpError = require('http-errors')
 const {
   validateBody,
   acquireProject,
@@ -54,11 +53,7 @@ router.patch(
   acquireProject,
   authorizeProjectEdit,
   validateBody('project-body-patch'),
-  async (req, res, next) => {
-    if (req.project.owner !== req.user._id) {
-      return next(createHttpError(403))
-    }
-
+  async (req, res) => {
     const { Project } = req.app.get('models')
     // NOTE: For now API resources contain the same arrangement of fields as models
     const project = await Project.findByIdAndUpdate(

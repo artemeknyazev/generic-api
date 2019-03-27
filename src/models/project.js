@@ -5,10 +5,6 @@ const ProjectSchema = new Schema({
     type: String,
     trim: true,
   },
-  slug: {
-    type: String,
-    trim: true,
-  },
   owner: {
     type: Schema.Types.ObjectId,
     ref: 'User',
@@ -20,18 +16,28 @@ const ProjectSchema = new Schema({
   status: {
     type: String,
     enum: [ 'active', 'removed' ],
+    default: 'active',
     select: false,
   },
 })
 
-// Get project by slug
-ProjectSchema.index({ slug: 1, status: 1 })
+ProjectSchema.set('toJSON', { virtuals: true })
 
 // Get project list by owner and status = active
 ProjectSchema.index({ owner: 1, status: 1 })
 
 // Get project list for a user
 ProjectSchema.index({ participants: 1, status: 1 })
+
+ProjectSchema.methods.isOwner =
+  function isOwner(userId) {
+    return userId.equals(this.owner)
+  }
+
+ProjectSchema.methods.isParticipant =
+  function isParticipant(userId) {
+    return this.participants.some(id => userId.equals(id))
+  }
 
 ProjectSchema.statics.findActiveById =
   function findActiveByIdOrSlug(idOrSlug, ...args) {

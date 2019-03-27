@@ -44,6 +44,7 @@ async function signupAndLogin(
   await signup(server, email, password)
   const res = await login(server, email, password)
   return {
+    id: res.body.payload.id,
     email,
     password,
     token: res.body.payload.token,

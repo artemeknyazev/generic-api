@@ -7,7 +7,7 @@ module.exports = function authorizeProjectEditMiddleware(req, res, next) {
   }
 
   const userId = req.user._id
-  if (project.owner === userId) {
+  if (project.isOwner(userId)) {
     return next()
   }
 

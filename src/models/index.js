@@ -1,6 +1,6 @@
 const createUserModel = require('./user')
-const createProjectModel = require('./user')
-const createTaskModel = require('./user')
+const createProjectModel = require('./project')
+const createTaskModel = require('./task')
 
 module.exports = (mongoConnection) => ({
   User: createUserModel(mongoConnection),

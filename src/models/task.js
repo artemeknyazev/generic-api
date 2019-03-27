@@ -23,6 +23,8 @@ const TaskSchema = new Schema({
   }
 })
 
+TaskSchema.set('toJSON', { virtuals: true })
+
 module.exports = function createTaskModel(mongoConnection) {
   return mongoConnection.model('Task', TaskSchema)
 }

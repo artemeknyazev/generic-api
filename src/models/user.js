@@ -28,6 +28,8 @@ const UserSchema = new Schema({
   },
 })
 
+UserSchema.set('toJSON', { virtuals: true })
+
 // Find user by email [and status = active]
 UserSchema.index({ email: 1, status: 1 })
 

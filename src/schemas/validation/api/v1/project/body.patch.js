@@ -21,7 +21,7 @@ module.exports = {
       type: 'array',
       items: {
         type: 'string',
-        pattern: 'object-id',
+        format: 'object-id',
       }
     }
   }

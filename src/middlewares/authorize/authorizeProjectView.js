@@ -7,7 +7,7 @@ module.exports = function authorizeProjectViewMiddleware(req, res, next) {
   }
 
   const userId = req.user._id
-  if (project.owner === userId || project.participants.includes(userId)) {
+  if (project.isOwner(userId) || project.isParticipant(userId)) {
     return next()
   }
 
