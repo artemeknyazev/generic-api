@@ -33,17 +33,17 @@ ProjectSchema.index({ owner: 1, status: 1 })
 // Get project list for a user
 ProjectSchema.index({ participants: 1, status: 1 })
 
-ProjectSchema.static.findActiveById =
+ProjectSchema.statics.findActiveById =
   function findActiveByIdOrSlug(idOrSlug, ...args) {
     return this.findOne({ _id: idOrSlug, status: 'active' }, ...args)
   }
 
-ProjectSchema.static.findActiveByIdAndUpdate =
+ProjectSchema.statics.findActiveByIdAndUpdate =
   function findActiveByIdOrSlug(idOrSlug, ...args) {
     return this.findOne({ _id: idOrSlug, status: 'active' }, ...args)
   }
 
-ProjectSchema.static.findActiveForUser =
+ProjectSchema.statics.findActiveForUser =
   function findActiveForUser(userId, ...args) {
     return this.find(
       {
@@ -57,7 +57,7 @@ ProjectSchema.static.findActiveForUser =
     )
   }
 
-ProjectSchema.static.removeById =
+ProjectSchema.statics.removeById =
   function removeById(id, cb) {
     return this.update({ _id: id }, { status: 'removed' }, cb)
   }

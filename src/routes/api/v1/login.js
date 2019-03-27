@@ -16,9 +16,13 @@ router.post(
     // NOTE: User.passwordHash field is not selected by default, request explicitly
     const user = await User.findActiveByEmail(email)
       .select('+passwordHash')
+      .select('+status')
       .exec()
     if (!user) {
       return next(createHttpError(401, 'Invalid email or password'))
+    }
+    if (user.status === 'removed') {
+      return next(createHttpError(401, 'User were removed. Reactivate using /api/v1/reactivate'))
     }
     const validPassword = await bcrypt.compare(password, user.passwordHash)
     if (!validPassword) {

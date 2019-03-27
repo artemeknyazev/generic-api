@@ -5,8 +5,13 @@ module.exports = (config, logger) =>
     const connection = mongoose.createConnection(
       config.mongoMainConnStr,
       {
+        // Mongoose-specific
         // Prevent buffering to find about connection errors early
         bufferCommands: false,
+        // Prevent creating indexes
+        // autoIndex: false,
+
+        // MongoDB driver-specific
         // If not connected, return errors immediately rather than waiting for reconnect
         bufferMaxEntries: 0,
         useNewUrlParser: true,
@@ -19,6 +24,7 @@ module.exports = (config, logger) =>
         // Allow reconnection
         reconnectTries: config.mongoMainReconnectTries,
         reconnectInterval: config.mongoMainReconnectInterval,
+        // Promises
         promiseLibrary: global.Promise,
       }
     )

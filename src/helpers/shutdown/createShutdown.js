@@ -49,6 +49,7 @@ module.exports = function createShutdown({
       console.error(`logger.close: ${err}`) // eslint-disable-line no-console
     }
 
+    isShuttingDown = false
     // NOTE: shutdown doesn't exit, exits it's caller
     return true // shutdown completed
   }

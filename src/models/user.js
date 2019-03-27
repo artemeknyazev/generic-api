@@ -44,22 +44,22 @@ UserSchema.methods.generateAuthToken =
     jwt.sign(tokenPayload, jwtPrivateKey, cb)
   }
 
-UserSchema.static.findActiveById =
+UserSchema.statics.findActiveById =
   function findActiveById(id, projection, options, cb) {
     return this.findOne({ _id: id, status: 'active' }, projection, options, cb)
   }
 
-UserSchema.static.findByEmail =
+UserSchema.statics.findByEmail =
   function findActiveById(email, projection, options, cb) {
     return this.findOne({ email }, projection, options, cb)
   }
 
-UserSchema.static.findActiveByEmail =
+UserSchema.statics.findActiveByEmail =
   function findActiveById(email, projection, options, cb) {
     return this.findOne({ email, status: 'active' }, projection, options, cb)
   }
 
-UserSchema.static.removeById =
+UserSchema.statics.removeById =
   function removeById(id, cb) {
     return this.update({ _id: id }, { status: 'removed' }, cb)
   }
