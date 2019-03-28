@@ -1,6 +1,6 @@
-const projectBodyPatch = require('./body.patch')
+const taskBodyPatch = require('./body.patch')
 
 module.exports = {
-  ...projectBodyPatch,
+  ...taskBodyPatch,
   required: [ 'title' ],
 }
