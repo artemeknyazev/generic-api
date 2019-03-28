@@ -20,10 +20,11 @@ function signup(
   server,
   email = createEmail(),
   password = createPassword(),
+  data = {},
 ) {
   return request(server)
     .post('/api/v1/signup')
-    .send({ email, password })
+    .send({ email, password, ...data })
 }
 
 function login(

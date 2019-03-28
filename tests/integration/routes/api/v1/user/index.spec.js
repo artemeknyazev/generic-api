@@ -34,30 +34,30 @@ describe('/api/v1/user', () => {
   })
 
   it('Can access current user info after log in', async () => {
-    const { email, token } = await signupAndLogin(server)
+    const { id, email, token } = await signupAndLogin(server)
     const res = await get(server, token)
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toEqual({ email })
+    expect(res.body.payload).toEqual({ id, email })
   })
 
   it('Can change current user info after log in', async () => {
-    const { email, token } = await signupAndLogin(server)
+    const { id, email, token } = await signupAndLogin(server)
     const name = Date.now().toString()
     const res = await patch(server, token, { name })
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toEqual({ name, email })
+    expect(res.body.payload).toMatchObject({ id, name, email })
   })
 
   it('User info change persists between queries', async () => {
-    const { email, token } = await signupAndLogin(server)
+    const { id, email, token } = await signupAndLogin(server)
     const name = Date.now().toString()
     await patch(server, token, { name })
     const res = await get(server, token)
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toEqual({ name, email })
+    expect(res.body.payload).toMatchObject({ id, name, email })
   })
 
   it('Can remove user after log in', async () => {

@@ -230,7 +230,6 @@ describe('/api/v1/projects', () => {
     expect(getRes.body.payload).toMatchObject(projectDataList)
   })
 
-  // TODO: title XSS tests, valid participant id tests
   it('Prevents XSS in the title field', async () => {
     const title = '<script>alert(123)</script>'
     const sanitizedTitle = '&lt;script&gt;alert(123)&lt;&#x2F;script&gt;'

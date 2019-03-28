@@ -18,13 +18,6 @@ describe('/api/v1', () => {
   })
   // --- Integration tests preamble end --
 
-  describe('GET /', () => {
-    // it('200 OK by default', async () => {
-    //   const res = await request(server).get('/api/v1')
-    //   expect(res.status).toBe(200)
-    // })
-  })
-
   describe('GET /not-a-valid-api-call', () => {
     it('404 not found', async () => {
       const res = await request(server).get('/api/v1/not-a-valid-api-call')

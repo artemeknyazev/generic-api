@@ -2,6 +2,8 @@ const request = require('supertest')
 const {
   createEmail,
   createPassword,
+  login,
+  signup,
 } = require('tests/helpers/user')
 
 describe('/api/v1/login', () => {
@@ -51,9 +53,7 @@ describe('/api/v1/login', () => {
   it('Can\'t log in with email and password as non-existent user', async () => {
     const email = createEmail()
     const password = createPassword()
-    const res = await request(server)
-      .post('/api/v1/login')
-      .send({ email, password })
+    const res = await login(server, email, password)
     expect(res.status).toBe(401)
     expect(res.body.status).toBe('error')
   })
@@ -61,9 +61,7 @@ describe('/api/v1/login', () => {
   it('Can\'t log in with email only as an existing user', async () => {
     const email = createEmail()
     const password = createPassword()
-    await request(server)
-      .post('/api/v1/signup')
-      .send({ email, password })
+    await signup(server, email, password)
     const res = await request(server)
       .post('/api/v1/login')
       .send({ email })
@@ -74,9 +72,7 @@ describe('/api/v1/login', () => {
   it('Can\'t log in with password only as an existing user', async () => {
     const email = createEmail()
     const password = createPassword()
-    await request(server)
-      .post('/api/v1/signup')
-      .send({ email, password })
+    await signup(server, email, password)
     const res = await request(server)
       .post('/api/v1/login')
       .send({ password })
@@ -87,12 +83,8 @@ describe('/api/v1/login', () => {
   it('Can login with email and password as an existing user', async () => {
     const email = createEmail()
     const password = createPassword()
-    await request(server)
-      .post('/api/v1/signup')
-      .send({ email, password })
-    const res = await request(server)
-      .post('/api/v1/login')
-      .send({ email, password })
+    await signup(server, email, password)
+    const res = await login(server, email, password)
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('ok')
     expect(res.body.payload).toHaveProperty('email', email)

@@ -3,6 +3,7 @@ const {
   createName,
   createEmail,
   createPassword,
+  signup,
 } = require('tests/helpers/user')
 
 describe('/api/v1/signup', () => {
@@ -52,24 +53,20 @@ describe('/api/v1/signup', () => {
   it('Can sign up with valid email and valid password', async () => {
     const email = createEmail()
     const password = createPassword()
-    const res = await request(server)
-      .post('/api/v1/signup')
-      .send({ email, password })
+    const res = await signup(server, email, password)
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toEqual({ email })
+    expect(res.body.payload).toMatchObject({ email })
   })
 
   it('Can sign up with name, valid email and valid password', async () => {
     const name = createName()
     const email = createEmail()
     const password = createPassword()
-    const res = await request(server)
-      .post('/api/v1/signup')
-      .send({ name, email, password })
+    const res = await signup(server, email, password, { name })
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toEqual({ name, email })
+    expect(res.body.payload).toMatchObject({ name, email })
   })
 
   it('Prevents XSS in the name field', async () => {
@@ -77,20 +74,16 @@ describe('/api/v1/signup', () => {
     const sanitizedName = '&lt;script&gt;alert(123)&lt;&#x2F;script&gt;'
     const email = createEmail()
     const password = createPassword()
-    const res = await request(server)
-      .post('/api/v1/signup')
-      .send({ name, email, password })
+    const res = await signup(server, email, password, { name })
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toEqual({ name: sanitizedName, email })
+    expect(res.body.payload).toMatchObject({ name: sanitizedName, email })
   })
 
   it('Prevents XSS in the email field', async () => {
     const email = '<script>alert(123)</script>@test.com'
     const password = createPassword()
-    const res = await request(server)
-      .post('/api/v1/signup')
-      .send({ email, password })
+    const res = await signup(server, email, password)
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
   })
