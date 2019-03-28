@@ -1,4 +1,5 @@
-const { Schema } = require('mongoose')
+const { Schema, Types: { ObjectId } } = require('mongoose')
+const mongooseHidden = require('mongoose-hidden')
 
 const ProjectSchema = new Schema({
   title: {
@@ -18,6 +19,7 @@ const ProjectSchema = new Schema({
     enum: [ 'active', 'removed' ],
     default: 'active',
     select: false,
+    hide: true,
   },
 })
 
@@ -29,24 +31,27 @@ ProjectSchema.index({ owner: 1, status: 1 })
 // Get project list for a user
 ProjectSchema.index({ participants: 1, status: 1 })
 
+ProjectSchema.plugin(mongooseHidden())
+
 ProjectSchema.methods.isOwner =
   function isOwner(userId) {
-    return userId.equals(this.owner)
+    return ObjectId(userId).equals(this.owner)
   }
 
 ProjectSchema.methods.isParticipant =
   function isParticipant(userId) {
-    return this.participants.some(id => userId.equals(id))
+    const objectId = ObjectId(userId)
+    return this.participants.some(id => objectId.equals(id))
   }
 
 ProjectSchema.statics.findActiveById =
-  function findActiveByIdOrSlug(idOrSlug, ...args) {
-    return this.findOne({ _id: idOrSlug, status: 'active' }, ...args)
+  function findActiveById(id, ...args) {
+    return this.findOne({ _id: id, status: 'active' }, ...args)
   }
 
 ProjectSchema.statics.findActiveByIdAndUpdate =
-  function findActiveByIdOrSlug(idOrSlug, ...args) {
-    return this.findOne({ _id: idOrSlug, status: 'active' }, ...args)
+  function findActiveByIdAndUpdate(id, ...args) {
+    return this.findOne({ _id: id, status: 'active' }, ...args)
   }
 
 ProjectSchema.statics.findActiveForUser =

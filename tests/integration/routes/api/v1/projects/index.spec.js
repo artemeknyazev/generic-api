@@ -99,7 +99,7 @@ describe('/api/v1/projects', () => {
     expect(patchRes.body.payload).toMatchObject(patchData)
   })
 
-  it('Project info change persists between queries', async () => {
+  it('Project info change persists', async () => {
     const { token } = await signupAndLogin(server)
     const createData = { title: createTitle() }
     const createRes = await create(server, token, createData)
@@ -158,6 +158,16 @@ describe('/api/v1/projects', () => {
     expect(getRes.body.payload).toMatchObject({ ...createData, owner: ownerId })
   })
 
+  it('Can\'t get a project as an outsider', async () => {
+    const { token: outsiderToken } = await signupAndLogin(server)
+    const { token: ownerToken } = await signupAndLogin(server)
+    const createRes = await create(server, ownerToken)
+    const projectId = createRes.body.payload.id
+    const getRes = await getOne(server, outsiderToken, projectId)
+    expect(getRes.status).toBe(403)
+    expect(getRes.body.status).toBe('error')
+  })
+
   it('Can\'t change a project as a participant', async () => {
     const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
@@ -170,7 +180,7 @@ describe('/api/v1/projects', () => {
     expect(patchRes.body.status).toBe('error')
   })
 
-  it('Can\'t change a project as not an owner and not a participant', async () => {
+  it('Can\'t change a project as an outsider', async () => {
     const { token: outsiderToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
     const createData = { title: createTitle(), participants: [] }
@@ -192,7 +202,7 @@ describe('/api/v1/projects', () => {
     expect(removeRes.status).toBe(403)
   })
 
-  it('Can\'t remove a project as not an owner and not a participant', async () => {
+  it('Can\'t remove a project as an outsider', async () => {
     const { token: outsiderToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
     const createData = { title: createTitle(), participants: [] }
@@ -257,5 +267,12 @@ describe('/api/v1/projects', () => {
       { title: createTitle(), participants: [ '<script>alert(123)</script>' ] })
     expect(createRes2.status).toBe(400)
     expect(createRes2.body.status).toBe('error')
+  })
+
+  it('Can\'t view not existing project', async () => {
+    const { token } = await signupAndLogin(server)
+    const res = await getOne(server, token, '000000000000000000000000')
+    expect(res.status).toBe(404)
+    expect(res.body.status).toBe('error')
   })
 })

@@ -1,4 +1,5 @@
 const { Schema } = require('mongoose')
+const mongooseHidden = require('mongoose-hidden')
 
 const TaskSchema = new Schema({
   title: {
@@ -23,12 +24,30 @@ const TaskSchema = new Schema({
   status: {
     type: String,
     enum: [ 'active', 'removed' ],
-    defalut: 'active',
+    default: 'active',
     select: false,
-  }
+    hide: true,
+  },
 })
 
 TaskSchema.set('toJSON', { virtuals: true })
+
+TaskSchema.plugin(mongooseHidden())
+
+TaskSchema.statics.findActiveById =
+  function findActiveById(id, ...args) {
+    return this.findOne({ _id: id, status: 'active' }, ...args)
+  }
+
+TaskSchema.statics.findActiveByProjectId =
+  function findActiveById(projectId, ...args) {
+    return this.find({ project: projectId, status: 'active' }, ...args)
+  }
+
+TaskSchema.statics.removeById =
+  function removeById(id, cb) {
+    return this.updateOne({ _id: id }, { status: 'removed' }, cb)
+  }
 
 module.exports = function createTaskModel(mongoConnection) {
   return mongoConnection.model('Task', TaskSchema)

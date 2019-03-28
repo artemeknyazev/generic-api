@@ -87,6 +87,8 @@ router.use(
   '/:projectId/tasks',
 
   acquireProject,
+  // One who can view project info may also create/modify all tasks
+  authorizeProjectView,
   require('./tasks'),
 )
 

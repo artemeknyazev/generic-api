@@ -13,7 +13,7 @@ const {
   removeOne: removeOneTask,
 } = require('tests/helpers/task')
 
-xdescribe('/api/v1/projects/:projectId/tasks', () => {
+describe('/api/v1/projects/:projectId/tasks', () => {
   // --- Integration tests preamble start --
   let server = null
   let shutdown = null
@@ -36,7 +36,7 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
     const createProjectRes = await createProject(server, token)
     const projectId = createProjectRes.body.payload.id
     const res = await request(server)
-      .get(`/api/v1/projects/${projectId}`)
+      .get(`/api/v1/projects/${projectId}/tasks`)
       .send()
     expect(res.status).toBe(401)
     expect(res.body.status).toBe('error')
@@ -70,7 +70,7 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
   })
 
   it('Can add a task to a project as a project participant', async () => {
-    const { id: participantId, participantToken } = await signupAndLogin(server)
+    const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
     const createProjectRes = await createProject(
       server,
@@ -110,8 +110,8 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
   })
 
   it('Can get a task after creating it as a project participant', async () => {
-    const { id: participantId, participantToken } = await signupAndLogin(server)
-    const { id: ownerId, token: ownerToken } = await signupAndLogin(server)
+    const { id: participantId, token: participantToken } = await signupAndLogin(server)
+    const { token: ownerToken } = await signupAndLogin(server)
     const createProjectRes = await createProject(
       server,
       ownerToken,
@@ -127,14 +127,14 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
     expect(res.body.payload).toMatchObject({
       ...data,
       id: taskId,
-      createdBy: ownerId,
+      createdBy: participantId,
       project: projectId,
     })
     expect(res.body.payload).toHaveProperty('id')
   })
 
   it('Can get a project task list', async () => {
-    const { id: participantId, participantToken } = await signupAndLogin(server)
+    const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { id: ownerId, token: ownerToken } = await signupAndLogin(server)
     const createProjectRes = await createProject(
       server,
@@ -190,8 +190,8 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
   })
 
   it('Can change a task as a project owner', async () => {
-    const { id: participantId, participantToken } = await signupAndLogin(server)
-    const { id: ownerId, token: ownerToken } = await signupAndLogin(server)
+    const { id: participantId, token: participantToken } = await signupAndLogin(server)
+    const { token: ownerToken } = await signupAndLogin(server)
     const createProjectRes = await createProject(
       server,
       ownerToken,
@@ -213,7 +213,7 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
     expect(resPatchOwnerTask.body.payload).toMatchObject({
       ...patchOwnerTaskData,
       id: ownerTaskId,
-      createdBy: ownerId,
+      createdBy: participantId,
       project: projectId,
     })
 
@@ -223,15 +223,15 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
     expect(resPatchParticipantTask.status).toBe(200)
     expect(resPatchParticipantTask.body.status).toBe('ok')
     expect(resPatchParticipantTask.body.payload).toMatchObject({
-      ...patchOwnerTaskData,
-      id: ownerTaskId,
-      createdBy: ownerId,
+      ...patchParticipantTaskData,
+      id: participantTaskId,
+      createdBy: participantId,
       project: projectId,
     })
   })
 
   it('Can change a task as a project participant', async () => {
-    const { id: participantId, participantToken } = await signupAndLogin(server)
+    const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { id: ownerId, token: ownerToken } = await signupAndLogin(server)
     const createProjectRes = await createProject(
       server,
@@ -239,14 +239,12 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
       { title: createProjectTitle(), participants: [ participantId ] }
     )
     const projectId = createProjectRes.body.payload.id
-    const createOwnerTaskData = { title: createTaskTitle() }
-    const createOwnerTaskRes = await createTask(server, participantToken, projectId, createOwnerTaskData)
-    const ownerTaskId = createOwnerTaskRes.body.payload.id
-    const createParticipantTaskData = { title: createTaskTitle() }
-    const createParticipantTaskRes = await createTask(server, participantToken, projectId, createParticipantTaskData)
-    const participantTaskId = createParticipantTaskRes.body.payload.id
 
     // Try patching owner's task
+    const createOwnerTaskData = { title: createTaskTitle() }
+    const createOwnerTaskRes = await createTask(server, ownerToken, projectId, createOwnerTaskData)
+    const ownerTaskId = createOwnerTaskRes.body.payload.id
+
     const patchOwnerTaskData = { title: createOwnerTaskData.title + '1' }
     const resPatchOwnerTask = await patchOneTask(server, participantToken, projectId, ownerTaskId, patchOwnerTaskData)
     expect(resPatchOwnerTask.status).toBe(200)
@@ -258,15 +256,19 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
       project: projectId,
     })
 
-    /// Try patching own task
+    // Try patching own task
+    const createParticipantTaskData = { title: createTaskTitle() }
+    const createParticipantTaskRes = await createTask(server, participantToken, projectId, createParticipantTaskData)
+    const participantTaskId = createParticipantTaskRes.body.payload.id
+
     const patchParticipantTaskData = { title: createParticipantTaskData.title + '1' }
     const resPatchParticipantTask = await patchOneTask(server, participantToken, projectId, participantTaskId, patchParticipantTaskData)
     expect(resPatchParticipantTask.status).toBe(200)
     expect(resPatchParticipantTask.body.status).toBe('ok')
     expect(resPatchParticipantTask.body.payload).toMatchObject({
-      ...patchOwnerTaskData,
-      id: ownerTaskId,
-      createdBy: ownerId,
+      ...patchParticipantTaskData,
+      id: participantTaskId,
+      createdBy: participantId,
       project: projectId,
     })
   })
@@ -292,7 +294,7 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
   })
 
   it('Can remove a task as a project owner', async () => {
-    const { id: participantId, participantToken } = await signupAndLogin(server)
+    const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
     const createProjectRes = await createProject(
       server,
@@ -317,7 +319,7 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
   })
 
   it('Can remove a task as a project participant', async () => {
-    const { id: participantId, participantToken } = await signupAndLogin(server)
+    const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
     const createProjectRes = await createProject(
       server,
@@ -363,7 +365,7 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
     const res = await getManyTasks(server, token, projectId)
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('ok')
-    expect(res.body.payload.length).toEqual(2)
+    expect(res.body.payload.length).toEqual(1)
     expect(res.body.payload).toMatchObject([ create1Res.body.payload ])
   })
 
@@ -453,7 +455,7 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
       { assignedTo: participantId })
     expect(patchRes6.status).toBe(200)
     expect(patchRes6.body.status).toBe('ok')
-    expect(patchRes6.body.payload).toHaveProperty('assignedTo', ownerId)
+    expect(patchRes6.body.payload).toHaveProperty('assignedTo', participantId)
   })
 
   it('Can assign users to tasks as a project participant', async () => {
@@ -516,10 +518,10 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
       { assignedTo: participantId })
     expect(patchRes6.status).toBe(200)
     expect(patchRes6.body.status).toBe('ok')
-    expect(patchRes6.body.payload).toHaveProperty('assignedTo', ownerId)
+    expect(patchRes6.body.payload).toHaveProperty('assignedTo', participantId)
   })
 
-  it('Can\'t assign not a project participant and not a project owner to a task', async () => {
+  it('Can\'t assign to an outsider', async () => {
     const { id: outsiderId } = await signupAndLogin(server)
     const { id: participantId } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
@@ -533,7 +535,7 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
     // Can't create a task with an assignment to an outsider
     const createRes1 = await createTask(server, ownerToken, projectId,
       { title: createTaskTitle(), assignedTo: outsiderId })
-    expect(createRes1.status).toBe(200)
+    expect(createRes1.status).toBe(400)
     expect(createRes1.body.status).toBe('error')
 
     // Can't assign an outsider to an already created task
@@ -541,8 +543,8 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
     const task2Id = createRes2.body.payload.id
     const patchRes2 = await patchOneTask(server, ownerToken, projectId, task2Id,
       { assignedTo: outsiderId })
-    expect(patchRes2.status).toBe(200)
-    expect(patchRes2.body.status).toBe('ok')
+    expect(patchRes2.status).toBe(400)
+    expect(patchRes2.body.status).toBe('error')
 
     // Can't reassign a task to an outsider
     const createRes3 = await createTask(server, ownerToken, projectId,
@@ -550,7 +552,55 @@ xdescribe('/api/v1/projects/:projectId/tasks', () => {
     const task3Id = createRes3.body.payload.id
     const patchRes3 = await patchOneTask(server, ownerToken, projectId, task3Id,
       { assignedTo: outsiderId })
-    expect(patchRes3.status).toBe(200)
+    expect(patchRes3.status).toBe(400)
     expect(patchRes3.body.status).toBe('error')
+  })
+
+  it('Can\'t view project task list as an outsider', async () => {
+    const { token: outsiderToken } = await signupAndLogin(server)
+    const { id: participantId, token: participantToken } = await signupAndLogin(server)
+    const { token: ownerToken } = await signupAndLogin(server)
+    const createProjectRes = await createProject(
+      server,
+      ownerToken,
+      { title: createProjectTitle(), participants: [ participantId ] }
+    )
+    const projectId = createProjectRes.body.payload.id
+    await createTask(server, ownerToken, projectId)
+    await createTask(server, participantToken, projectId)
+    const res = await getManyTasks(server, outsiderToken, projectId)
+    expect(res.status).toBe(403)
+    expect(res.body.status).toBe('error')
+  })
+
+  it('Can\'t view task as an outsider', async () => {
+    const { token: outsiderToken } = await signupAndLogin(server)
+    const { id: participantId, token: participantToken } = await signupAndLogin(server)
+    const { token: ownerToken } = await signupAndLogin(server)
+    const createProjectRes = await createProject(
+      server,
+      ownerToken,
+      { title: createProjectTitle(), participants: [ participantId ] }
+    )
+    const projectId = createProjectRes.body.payload.id
+    const createTask1Res = await createTask(server, ownerToken, projectId)
+    const task1Id = createTask1Res.body.payload.id
+    const createTask2Res = await createTask(server, participantToken, projectId)
+    const task2Id = createTask2Res.body.payload.id
+    const getRes1 = await getOneTask(server, outsiderToken, projectId, task1Id)
+    expect(getRes1.status).toBe(403)
+    expect(getRes1.body.status).toBe('error')
+    const getRes2 = await getOneTask(server, outsiderToken, projectId, task2Id)
+    expect(getRes2.status).toBe(403)
+    expect(getRes2.body.status).toBe('error')
+  })
+
+  it('Can\'t view not existing task', async () => {
+    const { token } = await signupAndLogin(server)
+    const createProjectRes = await createProject(server, token)
+    const projectId = createProjectRes.body.payload.id
+    const res = await getOneTask(server, token, projectId, '000000000000000000000000')
+    expect(res.status).toBe(404)
+    expect(res.body.status).toBe('error')
   })
 })
