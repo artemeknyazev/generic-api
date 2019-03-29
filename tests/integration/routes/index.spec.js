@@ -5,7 +5,9 @@ describe('/', () => {
   let server = null
   let shutdown = null
   beforeEach((done) => {
-    require('src/index').then(result => {
+    const config = require('src/config')
+    const bootstrap = require('src/bootstrap')
+    bootstrap(config).then(result => {
       server = result.testServer
       shutdown = result.shutdown
       done()

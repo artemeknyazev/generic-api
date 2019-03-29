@@ -5,7 +5,9 @@ describe('/api/v1', () => {
   let server = null
   let shutdown = null
   beforeEach((done) => {
-    require('src/index').then(result => {
+    const config = require('src/config')
+    const bootstrap = require('src/bootstrap')
+    bootstrap(config).then(result => {
       server = result.testServer
       shutdown = result.shutdown
       done()
@@ -15,13 +17,6 @@ describe('/api/v1', () => {
     shutdown().then(() => done())
   })
   // --- Integration tests preamble end --
-
-  describe('GET /', () => {
-    it('200 OK by default', async () => {
-      const res = await request(server).get('/api/v1')
-      expect(res.status).toBe(200)
-    })
-  })
 
   describe('GET /not-a-valid-api-call', () => {
     it('404 not found', async () => {
