@@ -2,9 +2,13 @@ const request = require('supertest')
 const {
   createEmail,
   createPassword,
+  removeUser,
+} = require('tests/helpers/user')
+const {
   login,
   signup,
-} = require('tests/helpers/user')
+  signupAndLogin,
+} = require('tests/helpers/setup')
 
 describe('/api/v1/login', () => {
   // --- Integration tests preamble start --
@@ -32,25 +36,23 @@ describe('/api/v1/login', () => {
     expect(res.body.status).toBe('error')
   })
 
-  it('Can\'t log in with email only as non-existent user', async () => {
-    const email = createEmail()
+  it('Can\'t log in with an email only as a non-existent user', async () => {
     const res = await request(server)
       .post('/api/v1/login')
-      .send({ email })
+      .send({ email: createEmail() })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
   })
 
-  it('Can\'t log in with password only as non-existent user', async () => {
-    const password = createPassword()
+  it('Can\'t log in with a password only as a non-existent user', async () => {
     const res = await request(server)
       .post('/api/v1/login')
-      .send({ password })
+      .send({ password: createPassword() })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
   })
 
-  it('Can\'t log in with email and password as non-existent user', async () => {
+  it('Can\'t log in with an email and a password as a non-existent user', async () => {
     const email = createEmail()
     const password = createPassword()
     const res = await login(server, email, password)
@@ -58,7 +60,7 @@ describe('/api/v1/login', () => {
     expect(res.body.status).toBe('error')
   })
 
-  it('Can\'t log in with email only as an existing user', async () => {
+  it('Can\'t log in with an email only as an existing user', async () => {
     const email = createEmail()
     const password = createPassword()
     await signup(server, email, password)
@@ -69,7 +71,7 @@ describe('/api/v1/login', () => {
     expect(res.body.status).toBe('error')
   })
 
-  it('Can\'t log in with password only as an existing user', async () => {
+  it('Can\'t log in with a password only as an existing user', async () => {
     const email = createEmail()
     const password = createPassword()
     await signup(server, email, password)
@@ -80,7 +82,7 @@ describe('/api/v1/login', () => {
     expect(res.body.status).toBe('error')
   })
 
-  it('Can login with email and password as an existing user', async () => {
+  it('Can login with an email and a password as an existing user', async () => {
     const email = createEmail()
     const password = createPassword()
     await signup(server, email, password)
@@ -89,5 +91,12 @@ describe('/api/v1/login', () => {
     expect(res.body.status).toBe('ok')
     expect(res.body.payload).toHaveProperty('email', email)
     expect(res.body.payload).toHaveProperty('token')
+  })
+
+  it('Can\'t log in as a removed user', async () => {
+    const { email, password, token } = await signupAndLogin(server)
+    await removeUser(server, token)
+    const res = await login(server, email, password)
+    expect(res.status).toBe(401)
   })
 })

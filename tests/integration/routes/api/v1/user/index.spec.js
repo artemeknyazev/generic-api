@@ -1,10 +1,10 @@
 const request = require('supertest')
+const { signupAndLogin } = require('tests/helpers/setup')
 const {
-  login,
-  signupAndLogin,
-  get,
-  patch,
-  remove,
+  createName,
+  getUser,
+  patchUser,
+  removeUser,
 } = require('tests/helpers/user')
 
 describe('/api/v1/user', () => {
@@ -33,53 +33,44 @@ describe('/api/v1/user', () => {
     expect(res.body.status).toBe('error')
   })
 
-  it('Can access current user info after log in', async () => {
+  it('Can access current user info after sign up and log in', async () => {
     const { id, email, token } = await signupAndLogin(server)
-    const res = await get(server, token)
-    expect(res.status).toBe(200)
-    expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toEqual({ id, email })
+    const res = await getUser(server, token)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toEqual({ id, email })
   })
 
   it('Can change current user info after log in', async () => {
-    const { id, email, token } = await signupAndLogin(server)
-    const name = Date.now().toString()
-    const res = await patch(server, token, { name })
-    expect(res.status).toBe(200)
-    expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toMatchObject({ id, name, email })
-  })
-
-  it('User info change persists between queries', async () => {
-    const { id, email, token } = await signupAndLogin(server)
-    const name = Date.now().toString()
-    await patch(server, token, { name })
-    const res = await get(server, token)
-    expect(res.status).toBe(200)
-    expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toMatchObject({ id, name, email })
-  })
-
-  it('Can remove user after log in', async () => {
     const { token } = await signupAndLogin(server)
-    const res = await remove(server, token)
-    expect(res.status).toBe(204)
+    const patchData = { name: createName() }
+    const res = await patchUser(server, token, patchData)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toMatchObject({ ...patchData })
   })
 
-  it('Can\'t log in as a removed user', async () => {
-    const { email, password, token } = await signupAndLogin(server)
-    await remove(server, token)
-    const res = await login(server, email, password)
-    expect(res.status).toBe(401)
-    expect(res.body.status).toBe('error')
-    expect(res.body.payload).toEqual('User were removed. Reactivate using /api/v1/reactivate')
+  it('User info change persists', async () => {
+    const { token } = await signupAndLogin(server)
+    const patchData = { name: createName() }
+    await patchUser(server, token, patchData)
+    const res = await getUser(server, token)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toMatchObject(patchData)
+  })
+
+  it('Can remove own user after log in', async () => {
+    const { token } = await signupAndLogin(server)
+    const res = await removeUser(server, token)
+    expect(res.statusCode).toBe(204)
   })
 
   it('Can\'t access user info when using removed user credentials', async () => {
     const { token } = await signupAndLogin(server)
-    await remove(server, token)
-    const res = await get(server, token)
-    expect(res.status).toBe(401)
-    expect(res.body.status).toBe('error')
+    await removeUser(server, token)
+    const res = await getUser(server, token)
+    expect(res.statusCode).toBe(401)
+    expect(res.status).toBe('error')
   })
 })

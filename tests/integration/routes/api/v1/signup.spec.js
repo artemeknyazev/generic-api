@@ -3,8 +3,8 @@ const {
   createName,
   createEmail,
   createPassword,
-  signup,
 } = require('tests/helpers/user')
+const { signup } = require('tests/helpers/setup')
 
 describe('/api/v1/signup', () => {
   // --- Integration tests preamble start --
@@ -33,19 +33,17 @@ describe('/api/v1/signup', () => {
   })
 
   it('Can\'t sign up with email only', async () => {
-    const email = createEmail()
     const res = await request(server)
       .post('/api/v1/signup')
-      .send({ email })
+      .send({ email: createEmail() })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
   })
 
   it('Can\'t sign up with password only', async () => {
-    const password = createPassword()
     const res = await request(server)
       .post('/api/v1/signup')
-      .send({ password })
+      .send({ password: createPassword() })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
   })

@@ -1,12 +1,12 @@
 const request = require('supertest')
-const { signupAndLogin } = require('tests/helpers/user')
+const { signupAndLogin } = require('tests/helpers/setup')
 const {
-  createTitle,
-  getMany,
-  create,
-  getOne,
-  patchOne,
-  removeOne,
+  createProjectTitle,
+  getProjects,
+  createProject,
+  getProject,
+  patchProject,
+  removeProject,
 } = require('tests/helpers/project')
 
 describe('/api/v1/projects', () => {
@@ -36,243 +36,234 @@ describe('/api/v1/projects', () => {
   })
 
   it('Can access own empty project list after sign up and log in', async () => {
-    const { token } = await signupAndLogin(server)
-    const res = await getMany(server, token)
-    expect(res.status).toBe(200)
-    expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toEqual([])
+    const { token: ownerToken } = await signupAndLogin(server)
+
+    const res = await getProjects(server, ownerToken)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toEqual([])
   })
 
   it('Can add project', async () => {
-    const { id: userId, token } = await signupAndLogin(server)
-    const data = { title: createTitle() }
-    const res = await create(server, token, data)
-    expect(res.status).toBe(200)
-    expect(res.body.status).toBe('ok')
-    expect(res.body.payload).toMatchObject({ ...data, owner: userId })
-    expect(res.body.payload).toHaveProperty('id')
+    const { id: ownerId, token: ownerToken } = await signupAndLogin(server)
+
+    const projectData = { title: createProjectTitle() }
+    const res = await createProject(server, ownerToken, projectData)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toMatchObject({ ...projectData, owner: ownerId })
+    expect(res.payload).toHaveProperty('id')
   })
 
   it('Can get own project after creating it', async () => {
-    const { id: userId, token } = await signupAndLogin(server)
-    const createData = { title: createTitle() }
-    const createRes = await create(server, token, createData)
-    const projectId = createRes.body.payload.id
-    const getRes = await getOne(server, token, projectId)
-    expect(getRes.status).toBe(200)
-    expect(getRes.body.status).toBe('ok')
-    expect(getRes.body.payload).toMatchObject({
-      ...createData,
-      owner: userId,
+    const { id: ownerId, token: ownerToken } = await signupAndLogin(server)
+    const projectData = { title: createProjectTitle() }
+    const { id: projectId } = await createProject(server, ownerToken, projectData)
+
+    const res = await getProject(server, ownerToken, projectId)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toMatchObject({
+      ...projectData,
+      owner: ownerId,
       id: projectId,
     })
   })
 
   it('Can access own project list as an owner', async () => {
-    const { id: userId, token } = await signupAndLogin(server)
-    const createData1 = { title: createTitle() }
-    const createRes1 = await create(server, token, createData1)
-    const id1 = createRes1.body.payload.id
-    const createData2 = { title: createTitle() }
-    const createRes2 = await create(server, token, createData2)
-    const id2 = createRes2.body.payload.id
+    const { id: ownerId, token: ownerToken } = await signupAndLogin(server)
+    const project1Data = { title: createProjectTitle() }
+    const { id: project1Id } = await createProject(server, ownerToken, project1Data)
+    const project2Data = { title: createProjectTitle() }
+    const { id: project2Id } = await createProject(server, ownerToken, project2Data)
     const projectDataList = [
-      { ...createData1, owner: userId, id: id1 },
-      { ...createData2, owner: userId, id: id2 },
+      { ...project1Data, owner: ownerId, id: project1Id },
+      { ...project2Data, owner: ownerId, id: project2Id },
     ]
-    const res = await getMany(server, token)
-    expect(res.status).toBe(200)
-    expect(res.body.status).toBe('ok')
-    expect(res.body.payload.length).toEqual(2)
-    expect(res.body.payload).toMatchObject(projectDataList)
+
+    const res = await getProjects(server, ownerToken)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload.length).toEqual(2)
+    expect(res.payload).toMatchObject(projectDataList)
   })
 
   it('Can change own project', async () => {
-    const { token } = await signupAndLogin(server)
-    const createData = { title: createTitle() }
-    const createRes = await create(server, token, createData)
-    const id = createRes.body.payload.id
-    const patchData = { title: createData.title + '1' }
-    const patchRes = await patchOne(server, token, id, patchData)
-    expect(patchRes.status).toBe(200)
-    expect(patchRes.body.status).toBe('ok')
-    expect(patchRes.body.payload).toMatchObject(patchData)
+    const { token: ownerToken } = await signupAndLogin(server)
+    const createProjectData = { title: createProjectTitle() }
+    const { id: projectId } = await createProject(server, ownerToken, createProjectData)
+
+    const patchProjectData = { title: createProjectData.title + '1' }
+    const res = await patchProject(server, ownerToken, projectId, patchProjectData)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toMatchObject(patchProjectData)
   })
 
   it('Project info change persists', async () => {
-    const { token } = await signupAndLogin(server)
-    const createData = { title: createTitle() }
-    const createRes = await create(server, token, createData)
-    const id = createRes.body.payload.id
-    const patchData = { title: createData.title + '1' }
-    await patchOne(server, token, id, patchData)
-    const getRes = await getOne(server, token, id)
-    expect(getRes.status).toBe(200)
-    expect(getRes.body.status).toBe('ok')
-    expect(getRes.body.payload).toMatchObject(patchData)
+    const { token: ownerToken } = await signupAndLogin(server)
+    const createProjectData = { title: createProjectTitle() }
+    const { id: projectId } = await createProject(server, ownerToken, createProjectData)
+    const patchProjectData = { title: createProjectData.title + '1' }
+    await patchProject(server, ownerToken, projectId, patchProjectData)
+
+    const res = await getProject(server, ownerToken, projectId)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toMatchObject(patchProjectData)
   })
 
   it('Can remove own project', async () => {
-    const { token } = await signupAndLogin(server)
-    const createData = { title: createTitle() }
-    const createRes = await create(server, token, createData)
-    const id = createRes.body.payload.id
-    const removeRes = await removeOne(server, token, id)
-    expect(removeRes.status).toBe(204)
+    const { token: ownerToken } = await signupAndLogin(server)
+    const { id: projectId } = await createProject(server, ownerToken)
+
+    const res = await removeProject(server, ownerToken, projectId)
+    expect(res.statusCode).toBe(204)
   })
 
-  it('Can\'t get project after removing', async () => {
-    const { token } = await signupAndLogin(server)
-    const createData = { title: createTitle() }
-    const createRes = await create(server, token, createData)
-    const id = createRes.body.payload.id
-    await removeOne(server, token, id)
-    const getRes = await getOne(server, token, id)
-    expect(getRes.status).toBe(404)
+  it('Can\'t get a removed project', async () => {
+    const { token: ownerToken } = await signupAndLogin(server)
+    const { id: projectId } = await createProject(server, ownerToken)
+    await removeProject(server, ownerToken, projectId)
+
+    const getRes = await getProject(server, ownerToken, projectId)
+    expect(getRes.statusCode).toBe(404)
   })
 
-  it('Project is not displayed in project list after removing', async () => {
-    const { token } = await signupAndLogin(server)
-    const createData1 = { title: createTitle() }
-    const createRes1 = await create(server, token, createData1)
-    const id1 = createRes1.body.payload.id
-    const createData2 = { title: createTitle() }
-    const createRes2 = await create(server, token, createData2)
-    const id2 = createRes2.body.payload.id
-    await removeOne(server, token, id2)
-    const getRes = await getMany(server, token)
-    expect(getRes.status).toBe(200)
-    expect(getRes.body.payload.length).toEqual(1)
-    expect(getRes.body.payload).toMatchObject([ { id: id1, ...createData1 } ])
+  it('Removed project is not displayed in a project list', async () => {
+    const { token: ownerToken } = await signupAndLogin(server)
+    const { id: project1Id, payload: project1Data } = await createProject(server, ownerToken)
+    const { id: project2Id } = await createProject(server, ownerToken)
+    await removeProject(server, ownerToken, project2Id)
+
+    const res = await getProjects(server, ownerToken)
+    expect(res.statusCode).toBe(200)
+    expect(res.payload.length).toEqual(1)
+    expect(res.payload).toEqual([ { id: project1Id, ...project1Data } ])
   })
 
   it('Can get a project as a participant', async () => {
     const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { id: ownerId, token: ownerToken } = await signupAndLogin(server)
-    const createData = { title: createTitle(), participants: [ participantId ] }
-    const createRes = await create(server, ownerToken, createData)
-    const projectId = createRes.body.payload.id
-    const getRes = await getOne(server, participantToken, projectId)
-    expect(getRes.status).toBe(200)
-    expect(getRes.body.status).toBe('ok')
-    expect(getRes.body.payload).toMatchObject({ ...createData, owner: ownerId })
+    const createData = { title: createProjectTitle(), participants: [ participantId ] }
+    const { id: projectId } = await createProject(server, ownerToken, createData)
+
+    const res = await getProject(server, participantToken, projectId)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toMatchObject({ ...createData, owner: ownerId })
   })
 
   it('Can\'t get a project as an outsider', async () => {
     const { token: outsiderToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
-    const createRes = await create(server, ownerToken)
-    const projectId = createRes.body.payload.id
-    const getRes = await getOne(server, outsiderToken, projectId)
-    expect(getRes.status).toBe(403)
-    expect(getRes.body.status).toBe('error')
+    const { id: projectId } = await createProject(server, ownerToken)
+
+    const res = await getProject(server, outsiderToken, projectId)
+    expect(res.statusCode).toBe(403)
+    expect(res.status).toBe('error')
   })
 
   it('Can\'t change a project as a participant', async () => {
     const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
-    const createData = { title: createTitle(), participants: [ participantId ] }
-    const createRes = await create(server, ownerToken, createData)
-    const projectId = createRes.body.payload.id
-    const patchData = { title: createData.title + '1' }
-    const patchRes = await patchOne(server, participantToken, projectId, patchData)
-    expect(patchRes.status).toBe(403)
-    expect(patchRes.body.status).toBe('error')
+    const createProjectData = { title: createProjectTitle(), participants: [ participantId ] }
+    const { id: projectId } = await createProject(server, ownerToken, createProjectData)
+    const patchProjectData = { title: createProjectData.title + '1' }
+
+    const res = await patchProject(server, participantToken, projectId, patchProjectData)
+    expect(res.statusCode).toBe(403)
+    expect(res.status).toBe('error')
   })
 
   it('Can\'t change a project as an outsider', async () => {
     const { token: outsiderToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
-    const createData = { title: createTitle(), participants: [] }
-    const createRes = await create(server, ownerToken, createData)
-    const projectId = createRes.body.payload.id
-    const patchData = { title: createData.title + '1' }
-    const patchRes = await patchOne(server, outsiderToken, projectId, patchData)
-    expect(patchRes.status).toBe(403)
-    expect(patchRes.body.status).toBe('error')
+    const createProjectData = { title: createProjectTitle() }
+    const { id: projectId } = await createProject(server, ownerToken, createProjectData)
+    const patchProjectData = { title: createProjectData.title + '1' }
+    const res = await patchProject(server, outsiderToken, projectId, patchProjectData)
+    expect(res.statusCode).toBe(403)
+    expect(res.status).toBe('error')
   })
 
   it('Can\'t remove a project as a participant', async () => {
     const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
-    const createData = { title: createTitle(), participants: [ participantId ] }
-    const createRes = await create(server, ownerToken, createData)
-    const projectId = createRes.body.payload.id
-    const removeRes = await removeOne(server, participantToken, projectId)
-    expect(removeRes.status).toBe(403)
+    const { id: projectId } = await createProject(server, ownerToken,
+      { title: createProjectTitle(), participants: [ participantId ] })
+
+    const removeRes = await removeProject(server, participantToken, projectId)
+    expect(removeRes.statusCode).toBe(403)
   })
 
   it('Can\'t remove a project as an outsider', async () => {
     const { token: outsiderToken } = await signupAndLogin(server)
     const { token: ownerToken } = await signupAndLogin(server)
-    const createData = { title: createTitle(), participants: [] }
-    const createRes = await create(server, ownerToken, createData)
-    const projectId = createRes.body.payload.id
-    const removeRes = await removeOne(server, outsiderToken, projectId)
-    expect(removeRes.status).toBe(403)
+    const { id: projectId } = await createProject(server, ownerToken)
+
+    const removeRes = await removeProject(server, outsiderToken, projectId)
+    expect(removeRes.statusCode).toBe(403)
   })
 
   it('Can get list of projects containing ones participating in and own ones', async () => {
     const { id: participantId, token: participantToken } = await signupAndLogin(server)
     const { id: ownerId, token: ownerToken } = await signupAndLogin(server)
-    const createData1 = { title: createTitle(), participants: [ participantId ] }
-    const createRes1 = await create(server, ownerToken, createData1)
-    const id1 = createRes1.body.payload.id
-    const createData2 = { title: createTitle(), participants: [ participantId ] }
-    const createRes2 = await create(server, ownerToken, createData2)
-    const id2 = createRes2.body.payload.id
-    const createData3 = { title: createTitle(), participants: [] }
-    const createRes3 = await create(server, participantToken, createData3)
-    const id3 = createRes3.body.payload.id
-    const createData4 = { title: createTitle(), participants: [] }
-    const createRes4 = await create(server, participantToken, createData4)
-    const id4 = createRes4.body.payload.id
+    const { id: id1, payload: project1Data } = await createProject(server, ownerToken,
+      { title: createProjectTitle(), participants: [ participantId ] })
+    const { id: id2, payload: project2Data } = await createProject(server, ownerToken,
+      { title: createProjectTitle(), participants: [ participantId ] })
+    const { id: id3, payload: project3Data } = await createProject(server, participantToken,
+      { title: createProjectTitle(), participants: [] })
+    const { id: id4, payload: project4Data } = await createProject(server, participantToken,
+      { title: createProjectTitle(), participants: [] })
     const projectDataList = [
-      { ...createData3, owner: participantId, id: id3 },
-      { ...createData4, owner: participantId, id: id4 },
-      { ...createData1, owner: ownerId, id: id1 },
-      { ...createData2, owner: ownerId, id: id2 },
+      { ...project3Data, owner: participantId, id: id3 },
+      { ...project4Data, owner: participantId, id: id4 },
+      { ...project1Data, owner: ownerId, id: id1 },
+      { ...project2Data, owner: ownerId, id: id2 },
     ]
-    const getRes = await getMany(server, participantToken)
-    expect(getRes.status).toBe(200)
-    expect(getRes.body.status).toBe('ok')
-    expect(getRes.body.payload.length).toEqual(4)
-    expect(getRes.body.payload).toMatchObject(projectDataList)
+
+    const res = await getProjects(server, participantToken)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload.length).toEqual(4)
+    expect(res.payload).toMatchObject(projectDataList)
   })
 
   it('Prevents XSS in the title field', async () => {
     const title = '<script>alert(123)</script>'
     const sanitizedTitle = '&lt;script&gt;alert(123)&lt;&#x2F;script&gt;'
-    const { token } = await signupAndLogin(server)
-    const data = { title }
-    const sanitizedData = { title: sanitizedTitle }
-    const createRes = await create(server, token, data)
-    const projectId = createRes.body.payload.id
-    expect(createRes.status).toBe(200)
-    expect(createRes.body.status).toBe('ok')
-    expect(createRes.body.payload).toMatchObject(sanitizedData)
-    const getRes = await getOne(server, token, projectId)
-    expect(getRes.status).toBe(200)
-    expect(getRes.body.status).toBe('ok')
-    expect(getRes.body.payload).toMatchObject(sanitizedData)
+    const { token: ownerToken } = await signupAndLogin(server)
+
+    const res = await createProject(server, ownerToken, { title })
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toMatchObject({ title: sanitizedTitle })
   })
 
-  it('Prevents adding invalid participant ids', async () => {
-    const { token } = await signupAndLogin(server)
-    const createRes1 = await create(server, token,
-      { title: createTitle(), participants: [ '00000000000' ] })
-    expect(createRes1.status).toBe(400)
-    expect(createRes1.body.status).toBe('error')
-    const createRes2 = await create(server, token,
-      { title: createTitle(), participants: [ '<script>alert(123)</script>' ] })
-    expect(createRes2.status).toBe(400)
-    expect(createRes2.body.status).toBe('error')
+  describe('Prevents adding invalid participant ids', () => {
+    it('Can\'t use invalid ObjectID', async () => {
+      const { token: ownerToken } = await signupAndLogin(server)
+      const res = await createProject(server, ownerToken,
+        { title: createProjectTitle(), participants: [ '00000000000' ] })
+      expect(res.statusCode).toBe(400)
+      expect(res.status).toBe('error')
+    })
+
+    it('Can\'t use XSS content', async () => {
+      const { token: ownerToken } = await signupAndLogin(server)
+      const res = await createProject(server, ownerToken,
+        { title: createProjectTitle(), participants: [ '<script>alert(123)</script>' ] })
+      expect(res.statusCode).toBe(400)
+      expect(res.status).toBe('error')
+    })
   })
 
   it('Can\'t view not existing project', async () => {
     const { token } = await signupAndLogin(server)
-    const res = await getOne(server, token, '000000000000000000000000')
-    expect(res.status).toBe(404)
-    expect(res.body.status).toBe('error')
+    const res = await getProject(server, token, '000000000000000000000000')
+    expect(res.statusCode).toBe(404)
+    expect(res.status).toBe('error')
   })
 })

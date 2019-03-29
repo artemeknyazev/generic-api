@@ -6,7 +6,7 @@ module.exports = {
   httpPort: 8001,
   httpsPort: 8002,
 
-  logLevel: 'debug',
+  logLevel: 'error',
   // Disable mongo logs for now
   logTransportMongoAllow: false,
   logTransportMongoCollection: 'generic-api-staging',

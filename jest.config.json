@@ -1,5 +1,8 @@
 {
   "verbose": true,
   "testEnvironment": "node",
-  "maxConcurrency": 1
+  "maxConcurrency": 1,
+  "setupFilesAfterEnv": [
+    "tests/config/timeout.js"
+  ]
 }

@@ -1,96 +1,39 @@
-const request = require('supertest')
+const {
+  apiGet,
+  apiPatch,
+  apiDelete,
+} = require('./api')
 
-function createSuffix() {
-  return Date.now() + '-' + Math.round(Math.random() * Number.MAX_SAFE_INTEGER)
+function createName() {
+  return Date.now() + ' ' + Math.round(Math.random() * Number.MAX_SAFE_INTEGER)
 }
 
 function createEmail() {
-  return `${createSuffix()}@test.com`
+  return `${Date.now() + '-' + Math.round(Math.random() * Number.MAX_SAFE_INTEGER)}@test.com`
 }
 
 function createPassword() {
   return Date.now().toString()
 }
 
-function createName() {
-  return Date.now() + ' ' + Date.now()
+function getUser(server, token) {
+  return apiGet(server, '/api/v1/user', token)
 }
 
-function signup(
-  server,
-  email = createEmail(),
-  password = createPassword(),
-  data = {},
-) {
-  return request(server)
-    .post('/api/v1/signup')
-    .send({ email, password, ...data })
+function patchUser(server, token, data = {}) {
+  return apiPatch(server, '/api/v1/user', token, data)
 }
 
-function login(
-  server,
-  email = createEmail(),
-  password = createPassword(),
-) {
-  return request(server)
-    .post('/api/v1/login')
-    .send({ email, password })
-}
-
-async function signupAndLogin(
-  server,
-  email = createEmail(),
-  password = createPassword(),
-) {
-  await signup(server, email, password)
-  const res = await login(server, email, password)
-  return {
-    id: res.body.payload.id,
-    email,
-    password,
-    token: res.body.payload.token,
-  }
-}
-
-function get(
-  server,
-  token,
-) {
-  return request(server)
-    .get('/api/v1/user')
-    .set('x-generic-api-auth-token', token)
-    .send()
-}
-
-function patch(
-  server,
-  token,
-  data = {},
-) {
-  return request(server)
-    .patch('/api/v1/user')
-    .set('x-generic-api-auth-token', token)
-    .send(data)
-}
-
-function remove(
-  server,
-  token,
-) {
-  return request(server)
-    .delete('/api/v1/user')
-    .set('x-generic-api-auth-token', token)
-    .send()
+function removeUser(server, token) {
+  return apiDelete(server, '/api/v1/user', token)
 }
 
 module.exports = {
   createName,
   createEmail,
   createPassword,
-  signup,
-  login,
-  signupAndLogin,
-  get,
-  patch,
-  remove,
+
+  getUser,
+  patchUser,
+  removeUser,
 }

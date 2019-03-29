@@ -1,69 +1,42 @@
-const request = require('supertest')
+const {
+  apiGet,
+  apiPost,
+  apiPatch,
+  apiDelete,
+} = require('./api')
 
-function createTitle() {
+function createProjectTitle() {
   return Date.now() + '-' + Math.round(Math.random() * Number.MAX_SAFE_INTEGER) + ' Project'
 }
 
-function getMany(
-  server,
-  token,
-) {
-  return request(server)
-    .get('/api/v1/projects')
-    .set('x-generic-api-auth-token', token)
-    .send()
+function getProjects(server, token) {
+  return apiGet(server, '/api/v1/projects', token)
 }
 
-function create(
-  server,
-  token,
-  data = { title: createTitle() },
-) {
-  return request(server)
-    .post('/api/v1/projects')
-    .set('x-generic-api-auth-token', token)
-    .send(data)
+const defaultData = { title: createProjectTitle() }
+
+function createProject(server, token, data = defaultData) {
+  return apiPost(server, '/api/v1/projects', token, data)
 }
 
-function getOne(
-  server,
-  token,
-  projectId,
-) {
-  return request(server)
-    .get(`/api/v1/projects/${projectId}`)
-    .set('x-generic-api-auth-token', token)
-    .send()
+function getProject(server, token, projectId) {
+  return apiGet(server, `/api/v1/projects/${projectId}`, token)
 }
 
-function patchOne(
-  server,
-  token,
-  projectId,
-  data = {},
-) {
-  return request(server)
-    .patch(`/api/v1/projects/${projectId}`)
-    .set('x-generic-api-auth-token', token)
-    .send(data)
+function patchProject(server, token, projectId, data = {}) {
+  return apiPatch(server, `/api/v1/projects/${projectId}`, token, data)
 }
 
-function removeOne(
-  server,
-  token,
-  projectId,
-) {
-  return request(server)
-    .delete(`/api/v1/projects/${projectId}`)
-    .set('x-generic-api-auth-token', token)
-    .send()
+function removeProject(server, token, projectId) {
+  return apiDelete(server, `/api/v1/projects/${projectId}`, token)
 }
 
 module.exports = {
-  createTitle,
-  getMany,
-  create,
-  getOne,
-  patchOne,
-  removeOne,
+  createProjectTitle,
+  
+  getProjects,
+  createProject,
+  getProject,
+  patchProject,
+  removeProject,
 }
