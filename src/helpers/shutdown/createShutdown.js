@@ -3,8 +3,7 @@ module.exports = function createShutdown({
   httpsServer,
   removeProcessErrorListeners,
   logger,
-  // TODO: change to a list of mongo connections instead of a whole mongoose object
-  mongoose,
+  mongoConnection,
 }) {
   let isShuttingDown = false
   return async function shutdown() {
@@ -32,9 +31,9 @@ module.exports = function createShutdown({
       }
     }
 
-      // Disconnect Mongo
+    // Disconnect Mongo
     try {
-      await mongoose.disconnect()
+      await new Promise(resolve => mongoConnection.close(resolve))
     } catch (err) {
       logger.error(err)
     }
@@ -50,6 +49,11 @@ module.exports = function createShutdown({
       console.error(`logger.close: ${err}`) // eslint-disable-line no-console
     }
 
+    // Remove signal listeners here to prevent creating too much listeners in tests
+    process.removeAllListeners('SIGINT')
+    process.removeAllListeners('SIGTERM')
+
+    isShuttingDown = false
     // NOTE: shutdown doesn't exit, exits it's caller
     return true // shutdown completed
   }

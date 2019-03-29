@@ -1,13 +1,16 @@
 /* eslint-disable global-require */
 
 module.exports = {
-  createShutdown: require('./createShutdown'),
-  createShutdownSignalListener: require('./createShutdownSignalListener'),
-  httpServerCreator: require('./httpServerCreator'),
-  httpsServerCreator: require('./httpsServerCreator'),
-  instantiateServer: require('./instantiateServer'),
-  instantiateHttpServer: require('./instantiateHttpServer'),
-  instantiateHttpsServer: require('./instantiateHttpsServer'),
-  setProcessErrorListeners: require('./setProcessErrorListeners'),
-  setProcessShutdownSignalListeners: require('./setProcessShutdownSignalListeners'),
+  createHttpServer: require('./server/createHttpServer'),
+  createHttpsServer: require('./server/createHttpsServer'),
+  createLogger: require('./logger/createLogger'),
+  createMongoConnection: require('./db/createMongoConnection'),
+  createShutdown: require('./shutdown/createShutdown'),
+  createShutdownSignalListener: require('./shutdown/createShutdownSignalListener'),
+  httpServerCreator: require('./server/httpServerCreator'),
+  httpsServerCreator: require('./server/httpsServerCreator'),
+  instantiateServer: require('./server/instantiateServer'),
+  setProcessErrorListeners: require('./error/setProcessErrorListeners'),
+  setProcessShutdownSignalListeners: require('./shutdown/setProcessShutdownSignalListeners'),
+  validate: require('./validate'),
 }

@@ -1,43 +1,34 @@
-const createError = require('http-errors')
+/* eslint-disable global-require */
+
+const createHttpError = require('http-errors')
 const express = require('express')
+const { isApiAuthenticated } = require('src/middlewares')
 const router = express.Router()
 
-const list = []
+router.use(
+  '/user',
 
-router.get('/', (req, res) => {
-  res.status(200)
-  res.send({
-    status: 'ok',
-    payload: list,
-  })
-})
+  isApiAuthenticated,
+  require('./user'),
+)
 
-router.post('/', (req, res) => {
-  const data = { ...req.body.data }
-  list.push(data)
-  res.status(201)
-  res.send({
-    status: 'ok',
-    payload: data,
-  })
-})
+router.use(
+  '/projects',
 
+  isApiAuthenticated,
+  require('./projects'),
+)
+
+router.use('/signup', require('./signup'))
+router.use('/reactivate', require('./reactivate'))
+router.use('/login', require('./login'))
+
+// Catch-em-all route for unsupported methods
 router.all('*', function(req, res, next) {
-  next(createError(405))
+  next(createHttpError(405))
 })
 
-router.use(function (err, req, res, next) { // eslint-disable-line no-unused-vars
-  let statusCode = 500
-  let payload = 'Internal Server Error'
-  if (err) {
-    statusCode = err.statusCode
-    payload = err.message
-  }
-  res.status(statusCode)
-  res.send({
-    status: 'error',
-    payload,
-  })
-})
+// Error handler for all API routes; ensures consistent error response structure
+router.use(require('./errorHandler'))
 
 module.exports = router

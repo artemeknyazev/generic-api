@@ -6,10 +6,12 @@ module.exports = (logger = console) => {
     logger.error(err)
     process.exit(1)
   }
+
   function unhadledRejectionListener(err) {
     // Requalify an unhandled rejection to an uncaught exception
     throw err
   }
+
   process.on('uncaughtException', uncaughtExceptionListener)
   process.on('unhandledRejection', unhadledRejectionListener)
 
