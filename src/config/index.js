@@ -21,20 +21,6 @@ const envConfigs = {
 if (!envConfigs.hasOwnProperty(env))
   throw new Error(`Unsupported environment ${env}`)
 
-/**
- * @property {string}   env
- * @property {boolean}  isDevelopment
- * @property {boolean}  isTesting
- * @property {boolean}  isStaging
- * @property {boolean}  isProduction
- * @property {boolean}  httpAllow
- * @property {number}   httpPort
- * @property {boolean}  httpsAllow
- * @property {number}   httpsPort
- * @property {string}   httpsKeyPath
- * @property {string}   httpsCertPath
- * @property {string}   httpsPassPath
- */
 module.exports = {
   ...envConfigs[env],
   env,
