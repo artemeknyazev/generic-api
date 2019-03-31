@@ -1,13 +1,6 @@
-module.exports = {
-  type: 'object',
-  required: [ 'email', 'password' ],
-  properties: {
-    'email': {
-      type: 'string',
-      transform: [ 'trim' ],
-    },
-    'password': {
-      type: 'string',
-    },
-  }
-}
+const joi = require('src/helpers/validate/joi')
+
+module.exports = joi.object().keys({
+  email: joi.string().email().required(),
+  password: joi.string().required(),
+})

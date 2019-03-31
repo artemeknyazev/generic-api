@@ -1,6 +1,6 @@
-const projectBodyPatch = require('./body.patch')
+const joi = require('src/helpers/validate/joi')
+const taskBodyPatch = require('./body.patch')
 
-module.exports = {
-  ...projectBodyPatch,
-  required: [ 'title' ],
-}
+module.exports = taskBodyPatch.keys({
+  title: joi.reach(taskBodyPatch, 'title').required(),
+})

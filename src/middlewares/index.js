@@ -9,6 +9,4 @@ module.exports = {
   authorizeProjectView: require('./authorize/authorizeProjectView'),
   isApiAuthenticated: require('./authenticate/isApiAuthenticated'),
   validateBody: require('./validate/validateBody'),
-  validateQuery: require('./validate/validateQuery'),
-  validateParams: require('./validate/validateParams'),
 }

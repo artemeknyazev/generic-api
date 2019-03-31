@@ -1,4 +1,4 @@
-const { ValidationError } = require('ajv')
+const JoiValidationError = require('src/helpers/validate/JoiValidationError')
 const { HttpError } = require('http-errors')
 const {
   JsonWebTokenError,
@@ -26,11 +26,10 @@ module.exports = function errorHandler(err, req, res, next) { // eslint-disable-
       //   * 429 for rate limiting
       statusCode = err.statusCode
       payload = err.message
-    } else if (err instanceof ValidationError) {
+    } else if (err instanceof JoiValidationError) {
       // Validation errors are always 400 Bad Request
-      // TODO: prepare Ajv's error response for better readablity
       statusCode = 400
-      payload = err.errors
+      payload = err.toJSON()
     } else if (
       err instanceof JsonWebTokenError ||
       err instanceof NotBeforeError ||

@@ -1,17 +1,6 @@
-module.exports = {
-  type: 'object',
-  properties: {
-    'title': {
-      type: 'string',
-      'allOf': [
-        { transform: [ 'trim' ] },
-        { minLength: 1, maxLength: 256 },
-        { sanitize: [ 'escape' ] },
-      ],
-    },
-    'assignedTo': {
-      type: 'string',
-      format: 'object-id'
-    },
-  }
-}
+const joi = require('src/helpers/validate/joi')
+
+module.exports = joi.object().keys({
+  title: joi.string().trim().min(1).max(256).escape(),
+  assignedTo: joi.string().objectId(),
+})

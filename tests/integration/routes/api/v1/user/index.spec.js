@@ -73,4 +73,15 @@ describe('/api/v1/user', () => {
     expect(res.statusCode).toBe(401)
     expect(res.status).toBe('error')
   })
+
+  it('Prevent XSS in the name field', async () => {
+    const name = '<script>alert(123)</script>'
+    const sanitizedName = '&lt;script&gt;alert(123)&lt;&#x2F;script&gt;'
+    const { token } = await signupAndLogin(server)
+    await patchUser(server, token, { name })
+    const res = await getUser(server, token)
+    expect(res.statusCode).toBe(200)
+    expect(res.status).toBe('ok')
+    expect(res.payload).toMatchObject({ name: sanitizedName })
+  })
 })
