@@ -13,7 +13,9 @@ router.post(
     const { User } = req.app.get('models')
     const { name, email, password } = req.body
 
-    const existingUser = await User.findByEmail(email).exec()
+    const existingUser = await User.findByEmail(email)
+      .select('+status')
+      .exec()
     if (existingUser) {
       if (existingUser.status === 'active') {
         return next(createHttpError(400, 'User already registered'))
@@ -21,7 +23,7 @@ router.post(
         return next(createHttpError(400, 'User were removed. Reactivate using /api/v1/reactivate'))
       } else {
         // Alert when new status was introduced but we forgot to handle it here
-        req.app.logger.error(`Signup with an email of an existing user, unknown existing user status '${existingUser.status}'`)
+        req.app.get('logger').error(`Signup with an email of an existing user, unknown existing user status '${existingUser.status}'`)
         return next(createHttpError(400, 'User already registered'))
       }
     }

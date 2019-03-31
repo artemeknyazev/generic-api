@@ -545,4 +545,13 @@ describe('/api/v1/projects/:projectId/tasks', () => {
     expect(res.statusCode).toBe(404)
     expect(res.status).toBe('error')
   })
+
+  it('Can\'t view project when providing invalid id', async () => {
+    const { token } = await signupAndLogin(server)
+    const { id: projectId } = await createProject(server, token)
+
+    const res = await getTask(server, token, projectId, '{ __proto__:{} }')
+    expect(res.statusCode).toBe(400)
+    expect(res.status).toBe('error')
+  })
 })

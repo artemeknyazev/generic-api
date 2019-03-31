@@ -245,6 +245,7 @@ describe('/api/v1/projects', () => {
   describe('Prevents adding invalid participant ids', () => {
     it('Can\'t use invalid ObjectID', async () => {
       const { token: ownerToken } = await signupAndLogin(server)
+
       const res = await createProject(server, ownerToken,
         { title: createProjectTitle(), participants: [ '00000000000' ] })
       expect(res.statusCode).toBe(400)
@@ -253,6 +254,7 @@ describe('/api/v1/projects', () => {
 
     it('Can\'t use XSS content', async () => {
       const { token: ownerToken } = await signupAndLogin(server)
+
       const res = await createProject(server, ownerToken,
         { title: createProjectTitle(), participants: [ '<script>alert(123)</script>' ] })
       expect(res.statusCode).toBe(400)
@@ -262,8 +264,17 @@ describe('/api/v1/projects', () => {
 
   it('Can\'t view not existing project', async () => {
     const { token } = await signupAndLogin(server)
+
     const res = await getProject(server, token, '000000000000000000000000')
     expect(res.statusCode).toBe(404)
+    expect(res.status).toBe('error')
+  })
+
+  it('Can\'t view project when providing invalid id', async () => {
+    const { token } = await signupAndLogin(server)
+
+    const res = await getProject(server, token, '{ __proto__:{} }')
+    expect(res.statusCode).toBe(400)
     expect(res.status).toBe('error')
   })
 })
