@@ -44,7 +44,7 @@ module.exports = function errorHandler(err, req, res, next) { // eslint-disable-
       logger.error(err.stack)
     }
   } else {
-    logger.error('Arrived in /api/v1 error handler without an exception')
+    logger.error('Arrived in the /api/v1 error handler without an exception')
   }
 
   res.status(statusCode)

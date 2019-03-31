@@ -7,6 +7,7 @@ const { json, urlencoded } = require('body-parser')
 const cookieParser = require('cookie-parser')
 const { authenticate, apiResponse } = require('src/middlewares')
 const routes = require('src/routes')
+const xssFilters = require('xss-filters')
 
 const applySettings = (config, envEntities = {}) => (app) => {
   // Set entities as an app's setting. Get them using:
@@ -53,11 +54,30 @@ const applyRouters = (routers) => (app) => {
 
 const applyErrorHandler = (app) => {
   app.use(function(err, req, res, next) { // eslint-disable-line no-unused-vars
-    app.get('logger').error(err)
-    res.status(500)
+    const logger = req.app.get('logger')
+
+    // By default we use 500 Internal Server Error
+    let statusCode = 500
+    let payload = 'Internal Server Error'
+
+    if (err) {
+      if (err instanceof SyntaxError) {
+        // Handle body-parser json's middleware errors nicely
+        statusCode = 400
+        // Prevent possible reflected xss
+        const contentType = xssFilters.inHTMLData(req.get('content-type'))
+        payload = `Incorrect request body for content type '${contentType}'`
+      } else {
+        logger.error(err.stack)
+      }
+    } else {
+      logger.error('Arrived in the general error handler without an exception')
+    }
+
+    res.status(statusCode)
     res.send({
       status: 'error',
-      payload: 'Internal error',
+      payload,
     })
   })
 
