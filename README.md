@@ -4,6 +4,21 @@
 
 The intention of this project is to create an API service template. Abstract thinking about an API is good and etc., but some problems can be found only by implementing “real-life” projects, so this API models a simple task management application
 
+## Try it out
+
+[Staging server](https://rocky-beach-70402.herokuapp.com). API endpoints are located at path `/api/v1`. E.g.:
+
+```
+> curl -XPOST -i "https://rocky-beach-70402.herokuapp.com/api/v1/signup" \
+  -H "accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"test-2019-04-01-18-38@localhost","password":"password"}'
+```
+
+**NOTE:** First query may timeout or take some time because this is a free Heroku dyno
+
+Available API endpoints are described in the [API documentation on SwaggerHub](https://app.swaggerhub.com/apis/artemeknyazev/generic-api). You can also try sending API requests from their build-in tool
+
 ## Available resources
 
 * [API documentation](https://app.swaggerhub.com/apis/artemeknyazev/generic-api) on SwaggerHub
