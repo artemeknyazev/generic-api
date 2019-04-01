@@ -22,10 +22,10 @@ describe('/api/v1', () => {
     it('404 not found', async () => {
       const res = await request(server).get('/api/v1/not-a-valid-api-call')
       expect(res.status).toBe(405)
-      expect(res.body).toMatchObject({
-        status: 'error',
-        payload: 'Method Not Allowed',
-      })
+      expect(res.body.status).toBe('error')
+      expect(res.body.payload).toEqual([
+        'Method Not Allowed',
+      ])
     })
   })
 })
