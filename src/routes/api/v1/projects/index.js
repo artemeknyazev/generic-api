@@ -1,6 +1,6 @@
 const express = require('express')
 const {
-  validateBody,
+  validate,
   acquireProject,
   authorizeProjectEdit,
   authorizeProjectView,
@@ -25,7 +25,7 @@ router.get(
 router.post(
   '/',
 
-  validateBody('project-body-post'),
+  validate('create-project'),
   async (req, res) => {
     const { Project } = req.app.get('models')
     const newProject = await new Project({ ...req.body, owner: req.user._id }).save()
@@ -52,7 +52,8 @@ router.patch(
 
   acquireProject,
   authorizeProjectEdit,
-  validateBody('project-body-patch'),
+  validate('patch-project'),
+  // TODO: allow ownership transfer
   async (req, res) => {
     const { Project } = req.app.get('models')
     // NOTE: For now API resources contain the same arrangement of fields as models

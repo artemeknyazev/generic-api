@@ -34,6 +34,10 @@ describe('/api/v1/login', () => {
       .send({})
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      '"email" is required',
+      '"password" is required',
+    ])
   })
 
   it('Can\'t log in with an email only as a non-existent user', async () => {
@@ -42,6 +46,9 @@ describe('/api/v1/login', () => {
       .send({ email: createEmail() })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      '"password" is required',
+    ])
   })
 
   it('Can\'t log in with a password only as a non-existent user', async () => {
@@ -50,6 +57,9 @@ describe('/api/v1/login', () => {
       .send({ password: createPassword() })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      '"email" is required',
+    ])
   })
 
   it('Can\'t log in with an email and a password as a non-existent user', async () => {
@@ -58,6 +68,9 @@ describe('/api/v1/login', () => {
     const res = await login(server, email, password)
     expect(res.status).toBe(401)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      'Invalid email or password',
+    ])
   })
 
   it('Can\'t log in with an email only as an existing user', async () => {
@@ -69,6 +82,9 @@ describe('/api/v1/login', () => {
       .send({ email })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      '"password" is required',
+    ])
   })
 
   it('Can\'t log in with a password only as an existing user', async () => {
@@ -80,6 +96,9 @@ describe('/api/v1/login', () => {
       .send({ password })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      '"email" is required',
+    ])
   })
 
   it('Can login with an email and a password as an existing user', async () => {
@@ -98,5 +117,8 @@ describe('/api/v1/login', () => {
     await removeUser(server, token)
     const res = await login(server, email, password)
     expect(res.status).toBe(401)
+    expect(res.body.payload).toEqual([
+      'User were removed. Reactivate using /api/v1/reactivate',
+    ])
   })
 })

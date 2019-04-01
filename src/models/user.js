@@ -68,6 +68,11 @@ UserSchema.statics.removeById =
     return this.updateOne({ _id: id }, { status: 'removed' }, cb)
   }
 
+UserSchema.statics.findByIds =
+  function findByIds(ids, projection, options, cb) {
+    return this.find({ _id: { $in: ids } }, projection, options, cb)
+  }
+
 module.exports = function createUserModel(mongoConnection) {
   return mongoConnection.model('User', UserSchema)
 }
