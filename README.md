@@ -9,7 +9,7 @@ The intention of this project is to create an API service template. Abstract thi
 * [API documentation](https://app.swaggerhub.com/apis/artemeknyazev/generic-api) on SwaggerHub
 * [wiki](https://github.com/artemeknyazev/generic-api/wiki) with more details on the project
   * [Service Lifecycle](https://github.com/artemeknyazev/generic-api/wiki/service-lifecycle) describing the startup/shutdown and request handling processes
-  * [Business Logic](https://github.com/artemeknyazev/generic-api/wiki/service-lifecycle) of a task management application
+  * [Business Logic](https://github.com/artemeknyazev/generic-api/wiki/business-logic) of a task management application
 
 ## Desired functionality
 
