@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { validateBody } = require('src/middlewares')
+const { validate } = require('src/middlewares')
 
 // Show user info for currently logged in user
 router.get(
@@ -16,7 +16,7 @@ router.get(
 router.patch(
   '/',
 
-  validateBody('user-body-patch'),
+  validate('patch-user'),
   async (req, res) => {
     const { User } = req.app.get('models')
     // NOTE: For now API resources contain the same arrangement of fields as models
@@ -37,6 +37,7 @@ router.delete(
 
   async (req, res) => {
     const { User } = req.app.get('models')
+    // TODO: prevent user removal when there are active projects the user owns
     await User.removeById(req.user._id)
     // user removed, no content
     res.status(204)

@@ -41,6 +41,9 @@ describe('/api/v1/projects/:projectId/tasks', () => {
       .send()
     expect(res.status).toBe(401)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      'Unauthorized',
+    ])
   })
 
   it('Can access empty project task list after creating a project as a project owner', async () => {
@@ -307,6 +310,10 @@ describe('/api/v1/projects/:projectId/tasks', () => {
 
     const res = await getTask(server, ownerToken, projectId, taskId)
     expect(res.statusCode).toBe(404)
+    expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Task not found',
+    ])
   })
 
   it('Removed task is not displayed in a project task list', async () => {
@@ -341,6 +348,9 @@ describe('/api/v1/projects/:projectId/tasks', () => {
         { title: createTaskTitle(), assignedTo: '00000000000' })
       expect(res.statusCode).toBe(400)
       expect(res.status).toBe('error')
+      expect(res.payload).toEqual([
+        '"assignedTo" must be a valid MongoDB ObjectId',
+      ])
     })
 
     it('Can\'t use XSS content', async () => {
@@ -350,6 +360,9 @@ describe('/api/v1/projects/:projectId/tasks', () => {
         { title: createTaskTitle(), assignedTo: '<script>alert(123)</script>' })
       expect(res.statusCode).toBe(400)
       expect(res.status).toBe('error')
+      expect(res.payload).toEqual([
+        '"assignedTo" must be a valid MongoDB ObjectId',
+      ])
     })
   })
 
@@ -490,6 +503,9 @@ describe('/api/v1/projects/:projectId/tasks', () => {
         { title: createTaskTitle(), assignedTo: outsiderId })
       expect(res.statusCode).toBe(400)
       expect(res.status).toBe('error')
+      expect(res.payload).toEqual([
+        `User '${outsiderId}' is not authorized to be assigned to tasks in the project '${projectId}'`,
+      ])
     })
 
     it('Can\'t assign an outsider to an already created task', async () => {
@@ -500,6 +516,9 @@ describe('/api/v1/projects/:projectId/tasks', () => {
         { assignedTo: outsiderId })
       expect(res.statusCode).toBe(400)
       expect(res.status).toBe('error')
+      expect(res.payload).toEqual([
+        `User '${outsiderId}' is not authorized to be assigned to tasks in the project '${projectId}'`,
+      ])
     })
 
     it('Can\'t reassign a task to an outsider', async () => {
@@ -510,10 +529,13 @@ describe('/api/v1/projects/:projectId/tasks', () => {
       const res = await patchTask(server, ownerToken, projectId, taskId, { assignedTo: outsiderId })
       expect(res.statusCode).toBe(400)
       expect(res.status).toBe('error')
+      expect(res.payload).toEqual([
+        `User '${outsiderId}' is not authorized to be assigned to tasks in the project '${projectId}'`,
+      ])
     })
   })
 
-  it('Can\'t view project task list as an outsider', async () => {
+  it('Can\'t view a project task list as an outsider', async () => {
     const { ownerToken, participantToken, outsiderToken, projectId } = await setupProjectWithParticipantAndOutsider(server)
     await createTask(server, ownerToken, projectId)
     await createTask(server, participantToken, projectId)
@@ -521,9 +543,12 @@ describe('/api/v1/projects/:projectId/tasks', () => {
     const res = await getTasks(server, outsiderToken, projectId)
     expect(res.statusCode).toBe(403)
     expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Forbidden',
+    ])
   })
 
-  it('Can\'t view task as an outsider', async () => {
+  it('Can\'t view a task as an outsider', async () => {
     const { ownerToken, participantToken, outsiderToken, projectId } = await setupProjectWithParticipantAndOutsider(server)
     const { id: task1Id } = await createTask(server, ownerToken, projectId)
     const { id: task2Id } = await createTask(server, participantToken, projectId)
@@ -531,10 +556,16 @@ describe('/api/v1/projects/:projectId/tasks', () => {
     const res1 = await getTask(server, outsiderToken, projectId, task1Id)
     expect(res1.statusCode).toBe(403)
     expect(res1.status).toBe('error')
+    expect(res1.payload).toEqual([
+      'Forbidden',
+    ])
 
     const res2 = await getTask(server, outsiderToken, projectId, task2Id)
     expect(res2.statusCode).toBe(403)
     expect(res2.status).toBe('error')
+    expect(res2.payload).toEqual([
+      'Forbidden',
+    ])
   })
 
   it('Can\'t view not existing task', async () => {
@@ -544,14 +575,47 @@ describe('/api/v1/projects/:projectId/tasks', () => {
     const res = await getTask(server, token, projectId, '000000000000000000000000')
     expect(res.statusCode).toBe(404)
     expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Task not found',
+    ])
   })
 
-  it('Can\'t view project when providing invalid id', async () => {
+  it('Can\'t view a project when providing invalid id', async () => {
     const { token } = await signupAndLogin(server)
     const { id: projectId } = await createProject(server, token)
 
     const res = await getTask(server, token, projectId, '{ __proto__:{} }')
     expect(res.statusCode).toBe(400)
     expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Invalid task id',
+    ])
+  })
+
+  describe('Can\'t assign a task to a nonexistent user', () => {
+    it('When creating a task', async () => {
+      const { projectId, ownerToken } = await setupProject(server)
+
+      const res = await createTask(server, ownerToken, projectId,
+        { title: createTaskTitle(), assignedTo: '000000000000000000000000' })
+      expect(res.statusCode).toBe(400)
+      expect(res.status).toBe('error')
+      expect(res.payload).toEqual([
+        'User \'000000000000000000000000\' does not exist',
+      ])
+    })
+
+    it('When patching a task', async () => {
+      const { projectId, ownerToken } = await setupProject(server)
+      const { id: taskId } = await createTask(server, ownerToken, projectId)
+
+      const res = await patchTask(server, ownerToken, projectId, taskId,
+        { assignedTo: '000000000000000000000000' })
+      expect(res.statusCode).toBe(400)
+      expect(res.status).toBe('error')
+      expect(res.payload).toEqual([
+        'User \'000000000000000000000000\' does not exist',
+      ])
+    })
   })
 })

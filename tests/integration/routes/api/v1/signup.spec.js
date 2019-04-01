@@ -30,6 +30,10 @@ describe('/api/v1/signup', () => {
       .send({})
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      '"email" is required',
+      '"password" is required',
+    ])
   })
 
   it('Can\'t sign up with email only', async () => {
@@ -38,6 +42,9 @@ describe('/api/v1/signup', () => {
       .send({ email: createEmail() })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      '"password" is required',
+    ])
   })
 
   it('Can\'t sign up with password only', async () => {
@@ -46,6 +53,9 @@ describe('/api/v1/signup', () => {
       .send({ password: createPassword() })
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      '"email" is required',
+    ])
   })
 
   it('Can sign up with valid email and valid password', async () => {
@@ -84,5 +94,8 @@ describe('/api/v1/signup', () => {
     const res = await signup(server, email, password)
     expect(res.status).toBe(400)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      '"email" must be a valid email',
+    ])
   })
 })

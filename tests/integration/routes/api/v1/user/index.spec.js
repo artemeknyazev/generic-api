@@ -31,6 +31,9 @@ describe('/api/v1/user', () => {
       .send()
     expect(res.status).toBe(401)
     expect(res.body.status).toBe('error')
+    expect(res.body.payload).toEqual([
+      'Unauthorized',
+    ])
   })
 
   it('Can access current user info after sign up and log in', async () => {
@@ -72,6 +75,9 @@ describe('/api/v1/user', () => {
     const res = await getUser(server, token)
     expect(res.statusCode).toBe(401)
     expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Unauthorized',
+    ])
   })
 
   it('Prevent XSS in the name field', async () => {

@@ -44,6 +44,21 @@ ProjectSchema.methods.isParticipant =
     return this.participants.some(id => objectId.equals(id))
   }
 
+ProjectSchema.methods.isUserAuthorizedToView =
+  function isUserAuthorizedToView(userId) {
+    return this.isOwner(userId) || this.isParticipant(userId)
+  }
+
+ProjectSchema.methods.isUserAuthroizedToEdit =
+  function isUserAuthroizedToEdit(userId) {
+    return this.isOwner(userId)
+  }
+
+ProjectSchema.methods.isUserAuthorizedToBeAssignedToTask =
+  function isUserAuthorizedToBeAssignedToTask(userId) {
+    return this.isOwner(userId) || this.isParticipant(userId)
+  }
+
 ProjectSchema.statics.findActiveById =
   function findActiveById(id, ...args) {
     return this.findOne({ _id: id, status: 'active' }, ...args)

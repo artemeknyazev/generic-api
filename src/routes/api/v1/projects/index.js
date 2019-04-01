@@ -1,6 +1,6 @@
 const express = require('express')
 const {
-  validateBody,
+  validate,
   acquireProject,
   authorizeProjectEdit,
   authorizeProjectView,
@@ -25,8 +25,7 @@ router.get(
 router.post(
   '/',
 
-  validateBody('project-body-post'),
-  // TODO: validate participants!
+  validate('create-project'),
   async (req, res) => {
     const { Project } = req.app.get('models')
     const newProject = await new Project({ ...req.body, owner: req.user._id }).save()
@@ -53,8 +52,8 @@ router.patch(
 
   acquireProject,
   authorizeProjectEdit,
-  validateBody('project-body-patch'),
-  // TODO: validate participants!
+  validate('patch-project'),
+  // TODO: allow ownership transfer
   async (req, res) => {
     const { Project } = req.app.get('models')
     // NOTE: For now API resources contain the same arrangement of fields as models
@@ -78,7 +77,6 @@ router.delete(
   async (req, res) => {
     const { Project } = req.app.get('models')
     await Project.removeById(req.project._id)
-    // TODO: remove all linked tasks
     // project removed, no content
     res.status(204)
     res.sendApiOk()

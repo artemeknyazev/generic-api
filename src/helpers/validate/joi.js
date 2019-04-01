@@ -13,7 +13,7 @@ const objectIdStringExtension = (joi) => ({
       if (String(value).match(/^[a-f\d]{24}$/i)) {
         return value
       } else {
-        return this.createError('string.language', { value }, state, options)
+        return this.createError('string.objectId', { value }, state, options)
       }
     },
   }],

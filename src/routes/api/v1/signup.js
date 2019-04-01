@@ -1,14 +1,14 @@
 const express = require('express')
 const bcrypt = require('bcrypt')
 const createHttpError = require('http-errors')
-const { validateBody } = require('src/middlewares')
+const { validate } = require('src/middlewares')
 
 const router = express.Router()
 
 router.post(
   '/',
 
-  validateBody('signup-body-post'),
+  validate('signup'),
   async (req, res, next) => {
     const { User } = req.app.get('models')
     const { name, email, password } = req.body
