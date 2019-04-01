@@ -126,8 +126,12 @@ describe('/api/v1/projects', () => {
     const { id: projectId } = await createProject(server, ownerToken)
     await removeProject(server, ownerToken, projectId)
 
-    const getRes = await getProject(server, ownerToken, projectId)
-    expect(getRes.statusCode).toBe(404)
+    const res = await getProject(server, ownerToken, projectId)
+    expect(res.statusCode).toBe(404)
+    expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Project not found',
+    ])
   })
 
   it('Removed project is not displayed in a project list', async () => {
@@ -162,6 +166,9 @@ describe('/api/v1/projects', () => {
     const res = await getProject(server, outsiderToken, projectId)
     expect(res.statusCode).toBe(403)
     expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Forbidden',
+    ])
   })
 
   it('Can\'t change a project as a participant', async () => {
@@ -174,6 +181,9 @@ describe('/api/v1/projects', () => {
     const res = await patchProject(server, participantToken, projectId, patchProjectData)
     expect(res.statusCode).toBe(403)
     expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Forbidden',
+    ])
   })
 
   it('Can\'t change a project as an outsider', async () => {
@@ -185,6 +195,9 @@ describe('/api/v1/projects', () => {
     const res = await patchProject(server, outsiderToken, projectId, patchProjectData)
     expect(res.statusCode).toBe(403)
     expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Forbidden',
+    ])
   })
 
   it('Can\'t remove a project as a participant', async () => {
@@ -193,8 +206,11 @@ describe('/api/v1/projects', () => {
     const { id: projectId } = await createProject(server, ownerToken,
       { title: createProjectTitle(), participants: [ participantId ] })
 
-    const removeRes = await removeProject(server, participantToken, projectId)
-    expect(removeRes.statusCode).toBe(403)
+    const res = await removeProject(server, participantToken, projectId)
+    expect(res.statusCode).toBe(403)
+    expect(res.payload).toEqual([
+      'Forbidden',
+    ])
   })
 
   it('Can\'t remove a project as an outsider', async () => {
@@ -202,8 +218,11 @@ describe('/api/v1/projects', () => {
     const { token: ownerToken } = await signupAndLogin(server)
     const { id: projectId } = await createProject(server, ownerToken)
 
-    const removeRes = await removeProject(server, outsiderToken, projectId)
-    expect(removeRes.statusCode).toBe(403)
+    const res = await removeProject(server, outsiderToken, projectId)
+    expect(res.statusCode).toBe(403)
+    expect(res.payload).toEqual([
+      'Forbidden',
+    ])
   })
 
   it('Can get list of projects containing ones participating in and own ones', async () => {
@@ -245,6 +264,7 @@ describe('/api/v1/projects', () => {
   describe('Prevents adding invalid participant ids', () => {
     it('Can\'t use invalid ObjectID', async () => {
       const { token: ownerToken } = await signupAndLogin(server)
+
       const res = await createProject(server, ownerToken,
         { title: createProjectTitle(), participants: [ '00000000000' ] })
       expect(res.statusCode).toBe(400)
@@ -253,6 +273,7 @@ describe('/api/v1/projects', () => {
 
     it('Can\'t use XSS content', async () => {
       const { token: ownerToken } = await signupAndLogin(server)
+
       const res = await createProject(server, ownerToken,
         { title: createProjectTitle(), participants: [ '<script>alert(123)</script>' ] })
       expect(res.statusCode).toBe(400)
@@ -262,8 +283,60 @@ describe('/api/v1/projects', () => {
 
   it('Can\'t view not existing project', async () => {
     const { token } = await signupAndLogin(server)
+
     const res = await getProject(server, token, '000000000000000000000000')
     expect(res.statusCode).toBe(404)
     expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Project not found'
+    ])
+  })
+
+  it('Can\'t view project when providing invalid id', async () => {
+    const { token } = await signupAndLogin(server)
+
+    const res = await getProject(server, token, '{ __proto__:{}} }')
+    expect(res.statusCode).toBe(400)
+    expect(res.status).toBe('error')
+    expect(res.payload).toEqual([
+      'Invalid project id'
+    ])
+  })
+
+  describe('Can\'t add a nonexistent user as a participant', () => {
+    it('When creating a project', async () => {
+      const { token: ownerToken } = await signupAndLogin(server)
+
+      const res = await createProject(server, ownerToken, {
+        title: createProjectTitle(),
+        participants: [
+          '000000000000000000000000',
+          '000000000000000000000001',
+        ],
+      })
+      expect(res.statusCode).toBe(400)
+      expect(res.status).toBe('error')
+      expect(res.payload).toEqual([
+        '"participants" field contains invalid user ids: 000000000000000000000000, 000000000000000000000001',
+      ])
+    })
+
+    it('When patching a project', async () => {
+      const { token: ownerToken } = await signupAndLogin(server)
+      const { id: projectId } = await createProject(server, ownerToken)
+
+      const res = await patchProject(server, ownerToken, projectId,{
+        title: createProjectTitle(),
+        participants: [
+          '000000000000000000000000',
+          '000000000000000000000001',
+        ],
+      })
+      expect(res.statusCode).toBe(400)
+      expect(res.status).toBe('error')
+      expect(res.payload).toEqual([
+        '"participants" field contains invalid user ids: 000000000000000000000000, 000000000000000000000001',
+      ])
+    })
   })
 })

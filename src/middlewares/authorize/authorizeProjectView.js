@@ -3,11 +3,11 @@ const createHttpError = require('http-errors')
 module.exports = function authorizeProjectViewMiddleware(req, res, next) {
   const project = req.project
   if (!project) {
-    return next(new Error('authorizeProjectView called before acquireProjectMiddleware'))
+    return next(new Error('authorizeProjectViewMiddleware is called before acquireProjectMiddleware'))
   }
 
   const userId = req.user._id
-  if (project.isOwner(userId) || project.isParticipant(userId)) {
+  if (project.isUserAuthorizedToView(userId)) {
     return next()
   }
 
