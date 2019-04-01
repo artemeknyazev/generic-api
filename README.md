@@ -19,6 +19,18 @@ The intention of this project is to create an API service template. Abstract thi
 
 Available API endpoints are described in the [API documentation on SwaggerHub](https://app.swaggerhub.com/apis/artemeknyazev/generic-api). You can also try sending API requests from their build-in tool
 
+## Installation
+
+```
+> git clone https://github.com/artemeknyazev/generic-api.git
+> cd ./generic-api
+> npm install
+> export GENERIC_API_MONGO_DB=<path/to/local/mongo/database>
+> export GENERIC_API_LOG_MONGO_DB=<path/to/local/mongo/log/database>
+# or set `logTransportMongoAllow: false` in ./src/config/development.js to disable logging to MongoDB
+> npm run dev # or npm start
+```
+
 ## Available resources
 
 * [API documentation](https://app.swaggerhub.com/apis/artemeknyazev/generic-api) on SwaggerHub
