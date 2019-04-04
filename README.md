@@ -17,7 +17,7 @@ The intention of this project is to create an API service template. Abstract thi
 
 **NOTE:** First query may timeout or take some time because this is a free Heroku dyno
 
-Available API endpoints are described in the [API documentation on SwaggerHub](https://app.swaggerhub.com/apis/artemeknyazev/generic-api). You can also try sending API requests from their build-in tool
+Available API endpoints are described in the [API documentation on SwaggerHub](https://app.swaggerhub.com/apis/artemeknyazev/generic-api). You can also try sending API requests from their built-in tool
 
 ## Installation
 
